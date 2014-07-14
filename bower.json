@@ -1,0 +1,19 @@
+{
+  "name": "trace_line_fw",
+  "version": "0.0.1",
+  "dependencies": {
+	"bootstrap": "~3.0.3",
+	"EaselJS": "latest",
+	"gsap": "latest",
+	"lagrange":"https://github.com/LaGrangeMtl/grange-framework.git#latest",
+	"history.js": "~1.8.0",
+	"imagesloaded": "~3.1.4",
+    "jquery": "latest",
+    "es5-shim" : "latest",
+	"underscore" : "latest",
+	"modernizr" : "latest",
+	"placeholder.js" : "https://github.com/jamesallardice/Placeholders.js.git"
+  },
+  "private": true
+}
+
