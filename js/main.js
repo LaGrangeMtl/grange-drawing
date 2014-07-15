@@ -35,10 +35,11 @@
 				letterJoinedEnd = letterJoinedEnd || joinedEnd;
 				if(joinedStart && continuous) {
 					//append au continuous
-					continuous.append(def);
+					continuous.append(def, name[i]);
 				} else if(joinedEnd && !continuous) {
 					//start un nouveau line
 					continuous = def;
+					continuous.name = name[i];
 					lines.push(continuous);
 				} else {
 					lines.push(def);
@@ -57,10 +58,14 @@
 		var drawLine = function(){
 			var line = lines.shift();
 			if(!line) return;
+
+			var length = line.getLength();
+			var steps = length / 125;
+
 			var path = DrawPath.factory();
 			path.setDef(line);
 			path.setStage(getStage());
-			var onEnd = path.draw();
+			var onEnd = path.draw(steps);
 			onEnd.then(function(){
 				drawLine();
 			});

@@ -104,7 +104,8 @@
 		},
 
 		//initialise un path pour tracer
-		draw : function() {
+		draw : function(steps) {
+			steps = Math.ceil(steps) || 500;
 			clearShape(this);
 			var shape = this.shape = new createjs.Shape();
 			this.stage.addChild(shape);
@@ -136,9 +137,9 @@
 
 			var sprite = {x:0,y:0};
 			var deferred = $.Deferred();
-			TweenMax.to(sprite, 500, {
+			TweenMax.to(sprite, steps, {
 				bezier:{ type : "cubic", values : this.def.getCubic()},
-				ease:Quad.easeInOut,
+				ease:Linear.easeInOut,
 				useFrames : true,
 				onUpdate : function(){
 					addPoint(sprite.x, sprite.y);

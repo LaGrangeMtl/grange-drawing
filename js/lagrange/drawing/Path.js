@@ -69,6 +69,61 @@
 		return this.cubic || this.parseCubic();
 	};
 
+	// cubic helper formula at t interval
+	var CubicN = function(t, a, b, c, d) {
+		var t2 = t * t;
+		var t3 = t2 * t;
+		return a + (-a * 3 + t * (3 * a - a * t)) * t
+		+ (3 * b + t * (-6 * b + b * 3 * t)) * t
+		+ (c * 3 - c * 3 * t) * t2
+		+ d * t3;
+	};
+	Path.prototype.getLength = function() {
+		
+		
+		var lastPoint = [0, 0];
+
+		var length = this.parsed.reduce(function(l, segment){
+			var type = segment.type;
+			var fcn = false;
+
+			//clone
+			var anchors = segment.anchors.slice(0);
+			//console.log(segment.anchors);
+			switch(type) {
+				case 'M':
+					break;
+				case 'S':
+				case 'C':
+					
+					for(var i=0; i<50; i++) {
+						var x = CubicN(i/50, lastPoint[0], segment.anchors[0], segment.anchors[2], segment.anchors[4]);
+						var y = CubicN(i/50, lastPoint[1], segment.anchors[1], segment.anchors[3], segment.anchors[5]);
+						//console.log(x, y);
+						l += Math.sqrt(Math.pow(y - lastPoint[1], 2) + Math.pow(x - lastPoint[0], 2));
+					}
+
+					break;
+				case 'L':
+					l += Math.sqrt(Math.pow(anchors[1] - lastY, 2) + Math.pow(anchors[0] - lastX, 2));
+					break;
+			}
+
+			var lastY = anchors.pop();
+			var lastX = anchors.pop();
+
+			lastPoint = [lastX, lastY];
+			return l;
+		}, 0);
+
+		//console.log(this.name, length);
+
+		return length;
+		
+
+		
+	};
+
 	/**
 	Parses an SVG path string to a list of segment definitions, notably to be used by easel
 	*/
@@ -229,8 +284,9 @@
 		return Path.factory(null, this.name, parsed);
 	};
 
-	Path.prototype.append = function(part) {
+	Path.prototype.append = function(part, name) {
 		//console.log(part);
+		if(name) this.name += name;
 		this.setParsed(this.parsed.concat(part.parsed.slice(1)));
 	};
 
