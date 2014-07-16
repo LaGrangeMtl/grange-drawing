@@ -17,29 +17,35 @@
 
 	var loading = Alphabet.init();	
 	loading.then(function(){
-		var name = 'Marie-Francine';
+		var name = 'Merci Marie-Francine';
 		
 		var right = 0;
 		var continuous = false;
 		var lines = [];
 
 		for(var i=0; i<name.length; i++) {
-			var letter = Alphabet.getLetter(name[i]);
+			var letter = name[i];
+			if(letter === ' ') {
+				right += Alphabet.getLetter('n').bounding[1][0];
+				continuous = false;
+				continue;
+			}
+			var letterDef = Alphabet.getLetter(letter);
 
 			var letterJoinedEnd = false;
-			letter.paths.map(function(path) {
+			letterDef.paths.map(function(path) {
 				var def = path.translate([right, 0]);
 				var joinedStart = def.name && def.name.indexOf('joina') > -1;
 				var joinedEnd = /join(a?)b/.test(def.name);
-				//console.log(name[i], joinedStart, joinedEnd);
+				//console.log(letter, joinedStart, joinedEnd);
 				letterJoinedEnd = letterJoinedEnd || joinedEnd;
 				if(joinedStart && continuous) {
 					//append au continuous
-					continuous.append(def, name[i]);
+					continuous.append(def, letter);
 				} else if(joinedEnd && !continuous) {
 					//start un nouveau line
 					continuous = def;
-					continuous.name = name[i];
+					continuous.name = letter;
 					lines.push(continuous);
 				} else {
 					lines.push(def);
@@ -51,7 +57,7 @@
 
 			});
 			
-			right += letter.bounding[1][0];
+			right += letterDef.bounding[1][0];
 			//console.table([{letter:name[i], letterWidth: letter.bounding[1][0], total:right}]);	
 		}
 
@@ -72,18 +78,6 @@
 		};
 		drawLine();
 
-		//console.log(lines);
 	});
-
-/*
-
-var path = DrawPath.factory();
-					path.setDef(pathDef);
-					path.setStage(getStage());
-
-					$('#ctrl').off('.line').on('click.line', function(){
-						path.draw();
-					});
-					*/
 
 })(jQuery, createjs, lagrange.drawing.Path, rose.drawing.DrawPath, rose.drawing.Alphabet);

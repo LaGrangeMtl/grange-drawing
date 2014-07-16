@@ -25,6 +25,11 @@
 }(this, function (createjs) {
 	"use strict";
 
+	var defaults = {
+		color: '#000000',
+		strokeWidth : 2
+	};
+
 
 	var clearShape = function(obj){
 		if(obj.shape) {
@@ -41,6 +46,13 @@
 			this.def = def;
 		},
 
+		setColor : function(c){
+			this.color = c;
+		},
+		setStrokeWitdh : function(w){
+			this.strokeWidth = w;
+		},
+
 		setStage : function(stage) {
 			this.stage = stage;
 		},
@@ -52,7 +64,7 @@
 			this.stage.addChild(shape);
 
 			var g = shape.graphics;
-			g.clear().setStrokeStyle(1, 'round', 'round').beginStroke('#aaaaaa');
+			g.clear().setStrokeStyle(this.strokeWidth || defaults.strokeWidth, 'round', 'round').beginStroke(this.color || defaults.color);
 
 			var lastPoint = [0, 0];
 			var allPoints = [];
@@ -112,6 +124,9 @@
 			var g = shape.graphics;
 			var stage = this.stage;
 
+			var w = this.strokeWidth || defaults.strokeWidth;
+			var c = this.color || defaults.color;
+
 			var addPoint = (function(){
 				var previous;
 				return function(x, y) {
@@ -126,7 +141,7 @@
 						//g.endStroke();/**/
 					} else {
 
-						g.setStrokeStyle(0.3, 2, 2, 1).beginStroke('#000000');
+						g.setStrokeStyle(w, 2, 2, 1).beginStroke(c);
 						g.moveTo(x, y);
 					}
 
@@ -139,7 +154,7 @@
 			var deferred = $.Deferred();
 			TweenMax.to(sprite, steps, {
 				bezier:{ type : "cubic", values : this.def.getCubic()},
-				ease:Linear.easeInOut,
+				ease:Linear.easeOut,
 				useFrames : true,
 				onUpdate : function(){
 					addPoint(sprite.x, sprite.y);
