@@ -17,7 +17,7 @@
 
 	var loading = Alphabet.init();	
 	loading.then(function(){
-		var name = 'Phenelus Sylvain';
+		var name = 'Giselle Maurice';
 		
 		var right = 0;
 		var continuous = false;
