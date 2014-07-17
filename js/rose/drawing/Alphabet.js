@@ -27,7 +27,7 @@
 	"use strict";
 
 	var SCALE = 0.7;
-	var svgFile = 'pathPolytechnique.svg';
+	var svgFile = 'assets/alphabet.svg';
 
 	var letters = {};
 

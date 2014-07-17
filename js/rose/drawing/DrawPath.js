@@ -160,7 +160,7 @@
 					addPoint(sprite.x, sprite.y);
 				},
 				onComplete : function(){
-					this.show();
+					//this.show();
 					deferred.resolve();
 				}.bind(this)
 			});
