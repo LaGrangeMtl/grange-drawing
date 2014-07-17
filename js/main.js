@@ -1,10 +1,10 @@
 
 
-(function($, createjs, Path, DrawPath, Alphabet){
+(function($, createjs, Raphael, Path, DrawPath, Alphabet){
 
 
 
-	var getStage = (function(){
+	/*var getStage = (function(){
 		var stage;
 		var init = function(){
 			return new createjs.Stage(document.getElementById("rootCanvas"));
@@ -13,11 +13,25 @@
 		return function(){
 			return stage = stage || init();
 		}
+	})();/**/
+
+	var getStage = (function(){
+		var stage;
+		var init = function(){
+			return Raphael("svg", 1200,500);
+		};
+
+		return function(){
+			return stage = stage || init();
+		}
 	})();
+
+
+
 
 	var loading = Alphabet.init();	
 	loading.then(function(){
-		var name = 'Giselle Maurice';
+		var name = 'Merci Audrey';
 		
 		var right = 0;
 		var continuous = false;
@@ -80,4 +94,4 @@
 
 	});
 
-})(jQuery, createjs, lagrange.drawing.Path, rose.drawing.DrawPath, rose.drawing.Alphabet);
+})(jQuery, createjs, Raphael, lagrange.drawing.Path, rose.drawing.DrawPath, rose.drawing.Alphabet);

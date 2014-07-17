@@ -15,19 +15,27 @@
 		define(
 			'rose/drawing/DrawPath',//must be a string, not a var
 			[
-				'raphael'
-			], function (Raphael) {
-			return (ns[name] = factory(Raphael));
+				'createjs'
+			], function (createjs) {
+			return (ns[name] = factory(createjs));
 		});
 	} else {
-		ns[name] = factory(Raphael);
+		ns[name] = factory(createjs);
 	}
-}(this, function (Raphael) {
+}(this, function (createjs) {
 	"use strict";
 
 	var defaults = {
 		color: '#000000',
 		strokeWidth : 2
+	};
+
+
+	var clearShape = function(obj){
+		if(obj.shape) {
+			var stage = obj.shape.getStage();
+			stage.removeChild(obj.shape);
+		}
 	};
 
 
@@ -50,11 +58,17 @@
 		},
 
 		//ajoute un path au stage en one-shot
-		show : function(oldEl) {
-			
-			//if(oldEl) oldEl.remove();
+		show : function() {
+			clearShape(this);
+			var shape = this.shape = new createjs.Shape();
+			this.stage.addChild(shape);
 
-			var path = '';
+			var g = shape.graphics;
+			g.clear().setStrokeStyle(this.strokeWidth || defaults.strokeWidth, 'round', 'round').beginStroke(this.color || defaults.color);
+
+			var lastPoint = [0, 0];
+			var allPoints = [];
+			//var allBeziers = [];
 			this.def.parsed.forEach(function(segment){
 
 				var type = segment.type;
@@ -63,55 +77,75 @@
 				//clone
 				var anchors = segment.anchors.slice(0);
 
-				path += type + anchors.join(','); 
+				switch(type) {
+					case 'M':
+						fcn = 'moveTo';
+						break;
+					case 'S':
+						//fcn = 'curveTo';
+						fcn = 'bezierCurveTo';
+						/*allBeziers.push([anchors[0], anchors[1], lastPoint[0], lastPoint[1], '#ff0000']);
+						allBeziers.push([anchors[2], anchors[3], anchors[4], anchors[5], '#0000ff']);/**/
+						break;
+					case 'C':
+						fcn = 'bezierCurveTo';
+						/*allBeziers.push([anchors[0], anchors[1], lastPoint[0], lastPoint[1]]);
+						allBeziers.push([anchors[2], anchors[3], anchors[4], anchors[5]]);/**/
+						break;
+					case 'L':
+						fcn = 'lineTo';
+						break;
+				}
+				if(fcn) {
+					g[fcn].apply(g, anchors);
+				}
+
+				var lastY = anchors.pop();
+				var lastX = anchors.pop();
+
+				lastPoint = [lastX, lastY];
+				allPoints.push([lastX, lastY]);
+
 
 			});
-			
-			var w = this.strokeWidth || defaults.strokeWidth;
-			var c = this.color || defaults.color;
+			g.endStroke();
 
-			var el = this.stage.path(path);
-			var startOpacity = oldEl ? 0 : 1;
-			el.attr({"stroke-width": w, stroke: c, 'stroke-opacity':startOpacity});/**/
-
-			if(oldEl) {
-				oldEl.animate({
-					'stroke-opacity': 0
-				}, 500, 'linear', function(){
-					oldEl.remove();
-				});
-
-				el.animate({
-					'stroke-opacity': 1
-				}, 300, 'linear');
-			}
-
+			this.stage.update();
+			return shape;
 
 		},
 
 		//initialise un path pour tracer
 		draw : function(steps) {
 			steps = Math.ceil(steps) || 500;
-
-			var path = '';
+			clearShape(this);
+			var shape = this.shape = new createjs.Shape();
+			this.stage.addChild(shape);
+			var g = shape.graphics;
 			var stage = this.stage;
+
 			var w = this.strokeWidth || defaults.strokeWidth;
 			var c = this.color || defaults.color;
-			var el;
 
 			var addPoint = (function(){
 				var previous;
 				return function(x, y) {
+					/*g.beginFill(createjs.Graphics.getRGB(255,0,0));
+					g.drawCircle(x, y, 1);
+					g.endFill();/**/
+
 					if(previous) {
-						path += 'L'+x+','+y;
+						//g.setStrokeStyle(0.3, 2, 2).beginStroke('#000000');
+						//g.moveTo(last[0], last[1]);
+						g.lineTo(x, y);
+						//g.endStroke();/**/
 					} else {
 
-						path += 'M'+x+','+y;
+						g.setStrokeStyle(w, 2, 2, 1).beginStroke(c);
+						g.moveTo(x, y);
 					}
-					if(el) el.remove();
-					el = stage.path(path)
-					el.attr({"stroke-width": w, stroke: c});
 
+					stage.update();
 					previous = [x, y];
 				};
 			}());
@@ -128,7 +162,7 @@
 					addPoint(sprite.x, sprite.y);
 				},
 				onComplete : function(){
-					this.show(el);
+					this.show();
 					deferred.resolve();
 				}.bind(this)
 			});
