@@ -115,7 +115,7 @@
 					previous = [x, y];
 				};
 			}());
-
+			//console.log(this.def);
 			var cubic = this.def.getCubic();
 			var sprite = {x:cubic[0].x,y:cubic[0].y};
 			addPoint(sprite.x, sprite.y);

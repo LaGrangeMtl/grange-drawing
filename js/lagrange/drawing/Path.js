@@ -190,6 +190,7 @@
 					}
 					//fallthrough
 				case 'c':
+					type = 'c';
 					createJsCommand = 'bezierCurveTo';
 					lastBezierAnchor = [
 						2*anchors[4] - anchors[2],

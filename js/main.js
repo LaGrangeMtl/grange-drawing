@@ -31,7 +31,8 @@
 
 	var loading = Alphabet.init();	
 	loading.then(function(){
-		var name = 'Merci Audrey';
+		var name = 'p m';
+		//console.log(name);
 		
 		var right = 0;
 		var continuous = false;

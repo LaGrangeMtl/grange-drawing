@@ -79,7 +79,6 @@
 
 
 	var parseSVG = function(data){
-		
 		var boundings = [];
 
 		//console.log(data);
@@ -98,7 +97,7 @@
 			var letter = letters[id] = new Letter(id);
 
 			var paths = layer.find('path');
-			if(paths.length==0) console.log(layer);
+			//if(paths.length==0) console.log(layer);
 			var letterPathsBounding = [];
 			paths.each(function(i, el){
 				var pathEl = $(el);				
@@ -132,11 +131,15 @@
 
 	var doLoad = function(){
 		var loading = $.ajax({
-			url : svgFile
+			url : svgFile,
+			dataType : 'text'
 		});
 
 		loading.then(parseSVG, function(a, b, c){
-			console.log(a);
+			console.log('error load');
+			console.log(b);
+			//console.log(c);
+			//console.log(a.responseText);
 		});
 
 		return loading.promise();
