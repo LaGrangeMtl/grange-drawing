@@ -26,7 +26,7 @@
 }(this, function ($, Path) {
 	"use strict";
 
-	var SCALE = 0.7;
+	var SCALE = 0.2;
 	var svgFile = 'assets/alphabet.svg';
 
 	var letters = {};

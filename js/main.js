@@ -1,8 +1,12 @@
 
 
 (function($, createjs, Raphael, Path, DrawPath, Alphabet){
+	var W = 1400;
+	var H = 1200;
+	var names = ["Jessica Wanning","Julia Rockwell","Carol Hubbard","Ronald Candy","John Newton","Elvis Nicole","Gloria Weaver","Julia Cronkite","Mother Rogers","Chevy Irwin","Eddie Allen","Norman Jackson","Peter Rogers","Weird Chase","Colin Mays","Napoleon Martin","Edgar Simpson","Mohammad McCartney","Liberace Williams","Fields Burnett","Steve Ashe","Carrie Charles","Tommy Pasteur","Eddie Silverstone","Oprah Ashe","Ray Ball","Jim Diana","Michelangelo Eastwood","George Simpson","Alicia Austen","Jessica Nicole","Marilyn Everett","Keith Eastwood","Pablo Eastwood","Peyton Luther","Mozart Armstrong","Michael Burnett","Keith Glover","Elizabeth Child","Miles Astaire","Andy Edison","Martin Lennon","Tom Piccaso","Beyonce Disney","Peter Clinton","Henry Kennedy","Paul Child","Lewis Sagan","Michelangelo Lee","Marilyn Fisher"];
+	names.length = 10;/**/
 
-
+	TweenMax.ticker.fps(60)
 
 	/*var getStage = (function(){
 		var stage;
@@ -18,7 +22,7 @@
 	var getStage = (function(){
 		var stage;
 		var init = function(){
-			return Raphael("svg", 1200,500);
+			return Raphael("svg", W, H);
 		};
 
 		return function(){
@@ -27,14 +31,10 @@
 	})();
 
 
+	var traceName = function(name, right, top) {
+		right = right || 0;
+		top = top || 0;
 
-
-	var loading = Alphabet.init();	
-	loading.then(function(){
-		var name = 'p m';
-		//console.log(name);
-		
-		var right = 0;
 		var continuous = false;
 		var lines = [];
 
@@ -49,7 +49,7 @@
 
 			var letterJoinedEnd = false;
 			letterDef.paths.map(function(path) {
-				var def = path.translate([right, 0]);
+				var def = path.translate([right, top]);
 				var joinedStart = def.name && def.name.indexOf('joina') > -1;
 				var joinedEnd = /join(a?)b/.test(def.name);
 				//console.log(letter, joinedStart, joinedEnd);
@@ -81,7 +81,7 @@
 			if(!line) return;
 
 			var length = line.getLength();
-			var steps = length / 125;
+			var steps = length / 40;
 
 			var path = DrawPath.factory();
 			path.setDef(line);
@@ -92,7 +92,17 @@
 			});
 		};
 		drawLine();
+	};
+
+
+	var loading = Alphabet.init();	
+	loading.then(function(){
+		var incr = H / names.length;
+		names.forEach(function(name, k){
+			traceName(name, 0, k * incr);
+		});
 
 	});
+
 
 })(jQuery, createjs, Raphael, lagrange.drawing.Path, rose.drawing.DrawPath, rose.drawing.Alphabet);

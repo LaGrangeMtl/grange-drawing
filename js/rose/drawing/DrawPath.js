@@ -27,7 +27,7 @@
 
 	var defaults = {
 		color: '#000000',
-		strokeWidth : 2
+		strokeWidth : 0.6
 	};
 
 

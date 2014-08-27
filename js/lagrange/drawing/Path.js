@@ -39,7 +39,7 @@
 	var Path = function(svg, name, parsed) {
 		this.svg = svg;
 		this.name = name;
-		//console.log(svg, parsed);
+		//if(svg) console.log(svg, parsed);
 		this.setParsed(parsed || this.parse(svg));
 	};
 
@@ -61,6 +61,7 @@
 	};
 
 	Path.prototype.setParsed = function(parsed) {
+		//console.log(parsed);
 		this.parsed = parsed;
 		this.findBounding();
 	};
@@ -105,7 +106,7 @@
 
 					break;
 				case 'L':
-					l += Math.sqrt(Math.pow(anchors[1] - lastY, 2) + Math.pow(anchors[0] - lastX, 2));
+					l += Math.sqrt(Math.pow(anchors[1] - lastPoint[1], 2) + Math.pow(anchors[0] - lastPoint[0], 2));
 					break;
 			}
 
@@ -154,7 +155,7 @@
 
 		var path = rawDefs.map(function(def) {
 
-			//console.log(m);
+			//console.log(def);
 			var type = def.type;
 			var createJsCommand;
 			var isAbsolute = type === type.toUpperCase();
@@ -171,6 +172,9 @@
 				//moveTo
 				case 'm':
 					createJsCommand = 'moveTo';
+					break;
+				case 'l':
+					createJsCommand = 'lineTo';
 					break;
 				//horizontal line to
 				case 'h':
