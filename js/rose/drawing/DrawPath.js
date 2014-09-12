@@ -20,7 +20,7 @@
 			return (ns[name] = factory(Raphael));
 		});
 	} else {
-		ns[name] = factory(Raphael);
+		ns[name] = factory(root.Raphael);
 	}
 }(this, function (Raphael) {
 	"use strict";
@@ -31,49 +31,39 @@
 	};
 
 
-	var DrawPath = {
+	var DrawPath = function(){
+
+		var color = defaults.color;
+		var strokeWidth = defaults.strokeWidth;
+		var def;
+		var stage;
 
 		//prend la string des points SVG
-		setDef : function(def) {
-			this.def = def;
-		},
+		this.setDef = function(d) {
+			def = d;
+		};
 
-		setColor : function(c){
-			this.color = c;
-		},
-		setStrokeWitdh : function(w){
-			this.strokeWidth = w;
-		},
+		this.setColor = function(c){
+			color = c;
+		};
+		this.setStrokeWitdh = function(w){
+			strokeWidth = w;
+		};
 
-		setStage : function(stage) {
-			this.stage = stage;
-		},
+		this.setStage = function(s) {
+			stage = s;
+		};
 
 		//ajoute un path au stage en one-shot
-		show : function(oldEl) {
+		var show = this.show = function(oldEl) {
 			
 			//if(oldEl) oldEl.remove();
-
-			var path = '';
-			this.def.parsed.forEach(function(segment){
-
-				var type = segment.type;
-				var fcn = false;
-
-				//clone
-				var anchors = segment.anchors.slice(0);
-
-				path += type + anchors.join(','); 
-
-			});
+			var path = def.getSVGString();
 			
-			var w = this.strokeWidth || defaults.strokeWidth;
-			var c = this.color || defaults.color;
-
-			var el = this.stage.path(path);
+			var el = stage.path(path);
 			var startOpacity = oldEl ? 0 : 1;
-			el.attr({"stroke-width": w, stroke: c, 'stroke-opacity':startOpacity});/**/
-
+			el.attr({"stroke-width": strokeWidth, stroke: color, 'stroke-opacity':startOpacity});/**/
+			
 			if(oldEl) {
 				oldEl.animate({
 					'stroke-opacity': 0
@@ -87,16 +77,13 @@
 			}
 
 
-		},
+		};
 
 		//initialise un path pour tracer
-		draw : function(steps) {
+		this.draw = function(steps) {
 			steps = Math.ceil(steps) || 500;
 
 			var path = '';
-			var stage = this.stage;
-			var w = this.strokeWidth || defaults.strokeWidth;
-			var c = this.color || defaults.color;
 			var el;
 
 			var addPoint = (function(){
@@ -110,13 +97,13 @@
 					}
 					if(el) el.remove();
 					el = stage.path(path)
-					el.attr({"stroke-width": w, stroke: c});
+					el.attr({"stroke-width": strokeWidth, stroke: color});
 
 					previous = [x, y];
 				};
 			}());
 			//console.log(this.def);
-			var cubic = this.def.getCubic();
+			var cubic = def.getCubic();
 			var sprite = {x:cubic[0].x,y:cubic[0].y};
 			addPoint(sprite.x, sprite.y);
 			var deferred = $.Deferred();
@@ -128,19 +115,21 @@
 					addPoint(sprite.x, sprite.y);
 				},
 				onComplete : function(){
-					this.show(el);
+					show(el);
 					deferred.resolve();
-				}.bind(this)
+				}
 			});
 
 			return deferred.promise();
 
-		}
+		};
+
+		return this;
 
 	};
 
-	DrawPath.factory = function() {
-		return Object.create(DrawPath);
+	DrawPath.factory = function(o) {
+		return DrawPath.apply(o || {});
 	};
 
 	return DrawPath;

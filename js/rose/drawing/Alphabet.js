@@ -26,7 +26,8 @@
 }(this, function ($, Path) {
 	"use strict";
 
-	var SCALE = 0.2;
+	//original scale factor
+	var SCALE = 1;
 	var svgFile = 'assets/alphabet.svg';
 
 	var letters = {};
@@ -57,7 +58,12 @@
 		}
 	};
 
+	Letter.prototype.getWidth = function(){
+		return this.bounding[1][0];
+	};
+
 	Letter.prototype.setOffset = function(offset){
+		this.offset = offset;
 		this.paths = this.paths.map(function(path) {
 			//console.log(path.parsed[0].anchors[1]);
 			path = path.translate(offset);
@@ -68,13 +74,15 @@
 		this.setBounding();
 	};
 
-	var Alphabet = {
-		init : function() {
-			return doLoad();
-		},
-		getLetter : function(l){
-			return letters[l];
-		}
+	//returns a new letter, scaled
+	Letter.prototype.scale = function(scale){
+		if(!this.paths) return this;
+		var scaled = new Letter(this.name);
+		this.paths.forEach(function(path){
+			scaled.addPath(path.scale(scale));
+		});
+		scaled.setBounding();
+		return scaled;
 	};
 
 
@@ -122,6 +130,7 @@
 		//console.log(letters);
 
 		var keys = Object.keys(letters);
+		//ajuste le baseline de chaque lettre
 		keys.forEach(function(key) {
 			letters[key].setOffset([-1 * letters[key].bounding[0][0], -1 * top]);
 		});
@@ -146,6 +155,17 @@
 
 	};
 
+	var Alphabet = {
+		init : function() {
+			return doLoad();
+		},
+		getLetter : function(l){
+			return letters[l];
+		},
+		getNSpace : function(){
+			return letters['n'].getWidth();
+		}
+	};
 
 	return Alphabet;
 	
