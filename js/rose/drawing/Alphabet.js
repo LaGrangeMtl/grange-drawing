@@ -81,6 +81,7 @@
 		this.paths.forEach(function(path){
 			scaled.addPath(path.scale(scale));
 		});
+		scaled.bottomRight = (this.bottomRight && this.bottomRight.scale(scale));
 		scaled.setBounding();
 		return scaled;
 	};

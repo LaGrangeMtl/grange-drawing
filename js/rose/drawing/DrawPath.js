@@ -15,113 +15,71 @@
 		define(
 			'rose/drawing/DrawPath',//must be a string, not a var
 			[
-				'raphael'
-			], function (Raphael) {
-			return (ns[name] = factory(Raphael));
+				'raphael',
+				'TweenMax'
+			], function (Raphael, TweenMax) {
+			return (ns[name] = factory(Raphael, TweenMax));
 		});
 	} else {
-		ns[name] = factory(root.Raphael);
+		ns[name] = factory(root.Raphael, (root.GreenSockGlobals || root).TweenMax);
 	}
-}(this, function (Raphael) {
+}(this, function (Raphael, TweenMax) {
 	"use strict";
+
+	var TimelineMax = (window.GreenSockGlobals || window).TimelineMax;
+	
 
 	var defaults = {
 		color: '#000000',
-		strokeWidth : 0.6
+		strokeWidth : 0.6,
+		pxPerSecond : 100 //speed of drawing
 	};
 
 
 	var DrawPath = function(){
 
-		var color = defaults.color;
-		var strokeWidth = defaults.strokeWidth;
-		var def;
+		var settings = {};
+		var pathDef;
 		var stage;
 
 		//prend la string des points SVG
-		this.setDef = function(d) {
-			def = d;
+		this.init = function(path, stageParam, params) {
+			pathDef = path;
+			stage = stageParam;
+			settings.color = params.color ||  defaults.color;
+			settings.strokeWidth = params.strokeWidth ||  defaults.strokeWidth;
+			settings.pxPerSecond = params.pxPerSecond ||  defaults.pxPerSecond;
+			return this;
 		};
 
-		this.setColor = function(c){
-			color = c;
-		};
-		this.setStrokeWitdh = function(w){
-			strokeWidth = w;
-		};
-
-		this.setStage = function(s) {
-			stage = s;
-		};
-
-		//ajoute un path au stage en one-shot
-		var show = this.show = function(oldEl) {
-			
-			//if(oldEl) oldEl.remove();
-			var path = def.getSVGString();
-			
+		this.show = function() {
+			var path = pathDef.getSVGString();			
 			var el = stage.path(path);
-			var startOpacity = oldEl ? 0 : 1;
-			el.attr({"stroke-width": strokeWidth, stroke: color, 'stroke-opacity':startOpacity});/**/
-			
-			if(oldEl) {
-				oldEl.animate({
-					'stroke-opacity': 0
-				}, 500, 'linear', function(){
-					oldEl.remove();
-				});
-
-				el.animate({
-					'stroke-opacity': 1
-				}, 300, 'linear');
-			}
-
-
+			el.attr({"stroke-width": settings.strokeWidth, stroke: settings.color});/**/
 		};
 
-		//initialise un path pour tracer
-		this.draw = function(steps) {
-			steps = Math.ceil(steps) || 500;
+		this.draw = function(pxPerSecond){
+			var pathStr = pathDef.getSVGString();
+			var length = pathDef.getLength();
+			var time = length / (pxPerSecond || settings.pxPerSecond);
 
-			var path = '';
+			var anim = {to: 0};
+
 			var el;
+			var update = function(){
 
-			var addPoint = (function(){
-				var previous;
-				return function(x, y) {
-					if(previous) {
-						path += 'L'+x+','+y;
-					} else {
+				var pathPart = Raphael.getSubpath(pathStr, 0, anim.to);
+				if(el) el.remove();
+				el = stage.path(pathPart);
+				el.attr({"stroke-width": settings.strokeWidth, stroke: settings.color});
+			};
 
-						path += 'M'+x+','+y;
-					}
-					if(el) el.remove();
-					el = stage.path(path)
-					el.attr({"stroke-width": strokeWidth, stroke: color});
-
-					previous = [x, y];
-				};
-			}());
-			//console.log(this.def);
-			var cubic = def.getCubic();
-			var sprite = {x:cubic[0].x,y:cubic[0].y};
-			addPoint(sprite.x, sprite.y);
-			var deferred = $.Deferred();
-			TweenMax.to(sprite, steps, {
-				bezier:{ type : "cubic", values : cubic},
-				ease:Linear.easeOut,
-				useFrames : true,
-				onUpdate : function(){
-					addPoint(sprite.x, sprite.y);
-				},
-				onComplete : function(){
-					show(el);
-					deferred.resolve();
-				}
+			return TweenMax.to(anim, time, {
+				to : length,
+				onUpdate : update,
+				ease : Quad.easeIn
 			});
-
-			return deferred.promise();
-
+			
 		};
 
 		return this;
@@ -130,6 +88,16 @@
 
 	DrawPath.factory = function(o) {
 		return DrawPath.apply(o || {});
+	};
+
+	/**
+	Static. Returns a timelinemax of all the paths in the group, drawn one at a time.
+	*/
+	DrawPath.group = function(paths, stage, settings, onComplete) {
+		return paths.reduce(function(tl, path){
+			var drawingPath = DrawPath.factory().init(path, stage, settings);
+			return tl.append(drawingPath.draw());
+		}, new TimelineMax({ onComplete: (onComplete || function(){}) }));
 	};
 
 	return DrawPath;

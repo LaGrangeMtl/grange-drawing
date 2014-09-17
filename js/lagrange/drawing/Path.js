@@ -83,13 +83,12 @@
 	*/
 	Path.prototype.getSVGString = function() {
 		return this.parsed.reduce(function(svg, segment){
-			var type = segment.type;
-			return svg + type + segment.anchors.join(','); 
+			return svg + segment.type + segment.anchors.join(','); 
 		}, '');
 	};
 
 	/**
-	Parses an SVG path string to a list of segment definitions, notably to be used by easel
+	Parses an SVG path string to a list of segment definitions with ABSOLUTE positions (therefore we don't use Raphael.parsePathString)
 	*/
 	Path.prototype.parse = function(svg) {
 		var m;
@@ -177,7 +176,7 @@
 			};
 
 		});
-
+	
 		return path;
 	};
 

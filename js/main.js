@@ -1,6 +1,6 @@
 
 
-(function($, createjs, Raphael, DrawGroup, VectorWord, Alphabet){
+(function($, createjs, Raphael, DrawPath, VectorWord, Alphabet){
 	
 	var W = 1400;
 	var H = 1200;
@@ -8,10 +8,9 @@
 	var scaleFactor = 1;
 
 	var names = ["Jessica Wanning","Julia Rockwell","Carol Hubbard","Ronald Candy","John Newton","Elvis Nicole","Gloria Weaver","Julia Cronkite","Mother Rogers","Chevy Irwin","Eddie Allen","Norman Jackson","Peter Rogers","Weird Chase","Colin Mays","Napoleon Martin","Edgar Simpson","Mohammad McCartney","Liberace Williams","Fields Burnett","Steve Ashe","Carrie Charles","Tommy Pasteur","Eddie Silverstone","Oprah Ashe","Ray Ball","Jim Diana","Michelangelo Eastwood","George Simpson","Alicia Austen","Jessica Nicole","Marilyn Everett","Keith Eastwood","Pablo Eastwood","Peyton Luther","Mozart Armstrong","Michael Burnett","Keith Glover","Elizabeth Child","Miles Astaire","Andy Edison","Martin Lennon","Tom Piccaso","Beyonce Disney","Peter Clinton","Henry Kennedy","Paul Child","Lewis Sagan","Michelangelo Lee","Marilyn Fisher"];
-	names.length = 1;/**/
+	names.length = 6;/**/
 
-	TweenMax.ticker.fps(60);
-
+	window.GreenSockGlobals = {};
 
 	var getStage = (function(){
 		var stage;
@@ -23,11 +22,6 @@
 		}
 	})();
 
-	//return;
-	
-	var drawer = DrawGroup.factory();
-	drawer.setStage(getStage());
-
 
 	var loading = Alphabet.init();	
 	loading.then(function(){
@@ -37,11 +31,11 @@
 
 			var paths = VectorWord.getPaths(name, 0, k * incr, scaleFactor);
 
-			drawer.trace(paths);
+			DrawPath.group(paths, getStage(), {pxPerSecond:200, color:'#ff0000', strokeWidth:2});
 
 		});
 
 	});
 
 
-})(jQuery, createjs, Raphael, rose.drawing.DrawGroup, rose.drawing.VectorWord, rose.drawing.Alphabet);
+})(jQuery, createjs, Raphael, rose.drawing.DrawPath, rose.drawing.VectorWord, rose.drawing.Alphabet);
