@@ -11,16 +11,7 @@
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
-	if (typeof define === 'function' && define.amd) {
-		define(
-			'rose/drawing/Alphabet',//must be a string, not a var
-			[
-				'jquery',
-				'lagrange/drawing/Path'
-			], function ($) {
-			return (ns[name] = factory($, Path));
-		});
-	} else if (typeof exports === 'object') {
+	if (typeof exports === 'object') {
 	    // CommonJS
 	    module.exports = factory(require('jquery'), require('lagrange/drawing/Path.js'));
   	} else {

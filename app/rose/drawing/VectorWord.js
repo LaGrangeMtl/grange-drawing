@@ -11,15 +11,7 @@
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
-	if (typeof define === 'function' && define.amd) {
-		define(
-			'rose/drawing/VectorWord',//must be a string, not a var
-			[
-				'rose/drawing/Alphabet'
-			], function (Alphabet) {
-			return (ns[name] = factory(Alphabet));
-		});
-	} else if (typeof exports === 'object') {
+	if (typeof exports === 'object') {
 	    // CommonJS
 	    module.exports = factory(require('rose/drawing/Alphabet.js'));
   	} else {
