@@ -19,7 +19,10 @@
 			], function (Raphael) {
 			return (ns[name] = factory(Raphael));
 		});
-	} else {
+	} else if (typeof exports === 'object') {
+	    // CommonJS
+	    module.exports = factory(require('raphael'));
+  	} else {
 		ns[name] = factory(root.Raphael);
 	}
 }(this, function (Raphael) {

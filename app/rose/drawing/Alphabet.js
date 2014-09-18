@@ -20,7 +20,10 @@
 			], function ($) {
 			return (ns[name] = factory($, Path));
 		});
-	} else {
+	} else if (typeof exports === 'object') {
+	    // CommonJS
+	    module.exports = factory(require('jquery'), require('lagrange/drawing/Path.js'));
+  	} else {
 		ns[name] = factory(root.jQuery, root.lagrange.drawing.Path);
 	}
 }(this, function ($, Path) {

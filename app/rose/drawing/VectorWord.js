@@ -19,7 +19,10 @@
 			], function (Alphabet) {
 			return (ns[name] = factory(Alphabet));
 		});
-	} else {
+	} else if (typeof exports === 'object') {
+	    // CommonJS
+	    module.exports = factory(require('rose/drawing/Alphabet.js'));
+  	} else {
 		ns[name] = factory(rose.drawing.Alphabet);
 	}
 }(this, function (Alphabet) {

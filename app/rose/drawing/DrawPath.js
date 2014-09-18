@@ -3,7 +3,6 @@
  * @author Martin Vézina <m.vezina@la-grange.ca>
  * @copyright 2014 Martin Vézina <m.vezina@la-grange.ca>
  * 
- * module pattern : https://github.com/umdjs/umd/blob/master/amdWebGlobal.js
 */
 (function (root, factory) {
 	var nsParts = 'rose/drawing/DrawPath'.split('/');
@@ -11,23 +10,17 @@
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
-	if (typeof define === 'function' && define.amd) {
-		define(
-			'rose/drawing/DrawPath',//must be a string, not a var
-			[
-				'raphael',
-				'TweenMax'
-			], function (Raphael, TweenMax) {
-			return (ns[name] = factory(Raphael, TweenMax));
-		});
-	} else {
-		ns[name] = factory(root.Raphael, (root.GreenSockGlobals || root).TweenMax);
+	if (typeof exports === 'object') {
+	    // CommonJS
+	    ns[name] = module.exports = factory(require('raphael'), require('gsap'));
+  	} else {
+		ns[name] = factory(root.Raphael, (root.GreenSockGlobals || root));
 	}
 }(this, function (Raphael, TweenMax) {
 	"use strict";
 
-	var TimelineMax = (window.GreenSockGlobals || window).TimelineMax;
-	
+	//gsap exports TweenMax
+	var gsap = window.GreenSockGlobals || window;
 
 	var defaults = {
 		color: '#000000',
@@ -74,10 +67,10 @@
 				el.attr({"stroke-width": settings.strokeWidth, stroke: settings.color});
 			};
 
-			return TweenMax.to(anim, time, {
+			return gsap.TweenMax.to(anim, time, {
 				to : length,
 				onUpdate : update,
-				ease : Quad.easeIn
+				ease : gsap.Quad.easeIn
 			});
 			
 		};
@@ -97,7 +90,7 @@
 		return paths.reduce(function(tl, path){
 			var drawingPath = DrawPath.factory().init(path, stage, settings);
 			return tl.append(drawingPath.draw());
-		}, new TimelineMax({ onComplete: (onComplete || function(){}) }));
+		}, new gsap.TimelineMax({ onComplete: (onComplete || function(){}) }));
 	};
 
 	return DrawPath;
