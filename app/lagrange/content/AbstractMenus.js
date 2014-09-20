@@ -9,15 +9,10 @@
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
-	if (typeof define === 'function' && define.amd) {
-		define(
-			'lagrange/content/AbstractMenus',//must be a string, not a var
-			[
-				'jquery'
-			], function ($) {
-			return (ns[name] = factory($));
-		});
-	} else {
+	if (typeof exports === 'object') {
+	    // CommonJS
+	    ns[name] = module.exports = factory(require('jquery'));
+  	} else {
 		ns[name] = factory(root.$);
 	}
 }(this, function ($) {

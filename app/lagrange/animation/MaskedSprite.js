@@ -1,7 +1,6 @@
 
 /** 
-
-	Note : easel is not loaded by require, but rather from a conditionnal in the html, as the script is bundled by r.js and easel throws errors just by loading in ie8-
+-
 
 */
 
@@ -11,16 +10,10 @@
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
-	if (typeof define === 'function' && define.amd) {
-		define(
-			'lagrange/animation/MaskedSprite',//must be a string, not a var
-			[
-				'jquery',
-				'createjs'
-			], function ($, createjs) {
-			return (ns[name] = factory($, createjs));
-		});
-	} else {
+	if (typeof exports === 'object') {
+	    // CommonJS
+	    ns[name] = module.exports = factory(require('jquery'), require('createjs'));
+  	} else {
 		ns[name] = factory(root.$, root.createjs);
 	}
 }(this, function ($, createjs) {

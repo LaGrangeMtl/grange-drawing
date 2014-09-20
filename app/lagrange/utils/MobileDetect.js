@@ -4,16 +4,13 @@
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
-	if (typeof define === 'function' && define.amd) {
-		define(
-			'lagrange/utils/MobileDetect',//must be a string, not a var
-			[], function () {
-			return (ns[name] = factory());
-		});
-	} else {
+	if (typeof exports === 'object') {
+	    // CommonJS
+	    ns[name] = module.exports = factory();
+  	} else {
 		ns[name] = factory();
 	}
-}(this, function ($) {
+}(this, function () {
 
 	var MobileDetect = {
 		Android: function() {

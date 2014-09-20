@@ -11,17 +11,9 @@
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
-	if (typeof define === 'function' && define.amd) {
-		define(
-			'lagrange/drawing/Path',//must be a string, not a var
-			[
-				'raphael'
-			], function (Raphael) {
-			return (ns[name] = factory(Raphael));
-		});
-	} else if (typeof exports === 'object') {
+	if (typeof exports === 'object') {
 	    // CommonJS
-	    module.exports = factory(require('raphael'));
+	    ns[name] = module.exports = factory(require('raphael'));
   	} else {
 		ns[name] = factory(root.Raphael);
 	}
@@ -76,9 +68,7 @@
 
 
 	Path.prototype.getLength = function() {
-		
-		return Raphael.getTotalLength(this.getSVGString())
-
+		return Raphael.getTotalLength(this.getSVGString());
 	};
 
 	/**
@@ -91,95 +81,16 @@
 	};
 
 	/**
-	Parses an SVG path string to a list of segment definitions with ABSOLUTE positions (therefore we don't use Raphael.parsePathString)
+	Parses an SVG path string to a list of segment definitions with ABSOLUTE positions using Raphael.path2curve
 	*/
 	Path.prototype.parse = function(svg) {
-		var m;
-		var lastPoint;
-		var lastBezierAnchor;
-		var rawDefs = [];
-
-		while(m = reg.exec(svg)) {
-			var type = m[1];
-			var genericType = type.toLowerCase();
-			var expectedLength = expectedLengths[genericType];
-			var anchors = m[2].match(/\-?[0-9\.]+/g).map(function(v, i) {
-				return Number(v);
-			});
-			//svg srtandards states that if a command of a same type follows another, the command is not required
-			for(var i = 0; i < anchors.length; i += expectedLength){
-				rawDefs.push({
-					type : type,
-					genericType : genericType,
-					anchors : anchors.slice(i, i+expectedLength)
-				});
-			}
-
-		};
-		//console.log(svg);
-
-		var path = rawDefs.map(function(def) {
-
-			//console.log(def);
-			var type = def.type;
-			var createJsCommand;
-			var isAbsolute = type === type.toUpperCase();
-
-			//transform relative points to absolute
-			var anchors = def.anchors.map(function(v, i) {
-				if(!isAbsolute) v = v + lastPoint[i % 2];
-				return v;
-			});
-
-			//console.log(anchors, type);
-
-			switch(def.genericType) {
-				//moveTo
-				case 'm':
-					createJsCommand = 'moveTo';
-					break;
-				case 'l':
-					createJsCommand = 'lineTo';
-					break;
-				//horizontal line to
-				case 'h':
-					type = 'l';
-					createJsCommand = 'lineTo';
-					anchors.push(lastPoint[1]);
-					break;
-				//vertical line to
-				case 'v':
-					type = 'l';
-					createJsCommand = 'lineTo';
-					anchors.unshift(lastPoint[0]);
-					break;
-				case 's':
-					if(lastBezierAnchor){
-						anchors.splice(0, 0, lastBezierAnchor[0] , lastBezierAnchor[1] );
-					}
-					//fallthrough
-				case 'c':
-					type = 'c';
-					createJsCommand = 'bezierCurveTo';
-					lastBezierAnchor = [
-						2*anchors[4] - anchors[2],
-						2*anchors[5] - anchors[3]
-					];
-					break;
-
-			}
-			
-			lastPoint = [anchors[anchors.length-2], anchors[anchors.length-1]];
-
-			//console.log(anchors);
+		var curve = Raphael.path2curve(svg);
+		var path = curve.map(function(point){
 			return {
-				type : type.toUpperCase(),
-				createJsCommand: createJsCommand,
-				anchors : anchors
+				type : point.shift(),
+				anchors : point
 			};
-
 		});
-	
 		return path;
 	};
 

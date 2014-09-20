@@ -3,7 +3,6 @@
  * @author Martin Vézina <m.vezina@la-grange.ca>
  * @copyright 2014 Martin Vézina <m.vezina@la-grange.ca>
  * 
- * module pattern : https://github.com/umdjs/umd/blob/master/amdWebGlobal.js
 */
 (function (root, factory) {
 	var nsParts = 'lagrange/animation/AbstractTransition'.split('/');
@@ -11,16 +10,10 @@
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
-	if (typeof define === 'function' && define.amd) {
-		define(
-			'lagrange/animation/AbstractTransition',//must be a string, not a var
-			[
-				'jquery',
-				'TweenMax'
-			], function ($, TweenMax) {
-			return (ns[name] = factory($, TweenMax));
-		});
-	} else {
+	if (typeof exports === 'object') {
+	    // CommonJS
+	    ns[name] = module.exports = factory(require('jquery'), require('gsap'));
+  	} else {
 		ns[name] = factory(root.$, root.TweenMax);
 	}
 }(this, function ($, TweenMax) {

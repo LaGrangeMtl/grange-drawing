@@ -12,11 +12,11 @@
 	}, root);
 	if (typeof exports === 'object') {
 	    // CommonJS
-	    ns[name] = module.exports = factory(require('raphael'), require('gsap'));
+	    ns[name] = module.exports = factory(require('lodash'), require('raphael'), require('gsap'));
   	} else {
-		ns[name] = factory(root.Raphael, (root.GreenSockGlobals || root));
+		ns[name] = factory(root._, root.Raphael, (root.GreenSockGlobals || root));
 	}
-}(this, function (Raphael, TweenMax) {
+}(this, function (_, Raphael, TweenMax) {
 	"use strict";
 
 	//gsap exports TweenMax
@@ -25,9 +25,15 @@
 	var defaults = {
 		color: '#000000',
 		strokeWidth : 0.6,
-		pxPerSecond : 100 //speed of drawing
+		pxPerSecond : 100, //speed of drawing
+		easing : gsap.Quad.easeIn
 	};
 
+	//helper
+	var showPoint = function(point, stage, color, size){
+		var el = stage.circle(point.x, point.y, size || 2);
+		el.attr({fill: color || '#ff0000'});
+	};
 
 	var DrawPath = function(){
 
@@ -35,13 +41,13 @@
 		var pathDef;
 		var stage;
 
+
+
 		//prend la string des points SVG
 		this.init = function(path, stageParam, params) {
 			pathDef = path;
 			stage = stageParam;
-			settings.color = params.color ||  defaults.color;
-			settings.strokeWidth = params.strokeWidth ||  defaults.strokeWidth;
-			settings.pxPerSecond = params.pxPerSecond ||  defaults.pxPerSecond;
+			_.extend(settings, defaults, params);
 			return this;
 		};
 
@@ -57,20 +63,79 @@
 			var time = length / (pxPerSecond || settings.pxPerSecond);
 
 			var anim = {to: 0};
+			
+			var update = (function(){
+				var el;
+				return function(){
+					var pathPart = Raphael.getSubpath(pathStr, 0, anim.to);
+					if(el) el.remove();
+					el = stage.path(pathPart);
+					el.attr({"stroke-width": settings.strokeWidth, stroke: settings.color});
+				};
+			})();
+			
+			var breakPoints = (function(){
 
-			var el;
-			var update = function(){
+				var distanceTreshold = 40;
+				var angleTreshold = 12;
 
-				var pathPart = Raphael.getSubpath(pathStr, 0, anim.to);
-				if(el) el.remove();
-				el = stage.path(pathPart);
-				el.attr({"stroke-width": settings.strokeWidth, stroke: settings.color});
-			};
+				var lastAlpha, alpha, p, diff, pointPos = [];
+				var max = length - distanceTreshold;
+				for(var i=distanceTreshold; i<=max; i += 2) {
+					//var pathPart = Raphael.getSubpath(pathStr, 0, i);
+					p = Raphael.getPointAtLength(pathStr, i);
+					alpha = p.alpha % 360;
+					if(!lastAlpha) {
+						lastAlpha = alpha;
+						continue;
+					}
+					var dif = Math.abs(alpha - lastAlpha);
+					//console.log(alpha, dif);
+					if(dif > angleTreshold) {
+						//console.log(alpha, alpha);
+						//showPoint(p, stage, '#ff0000');
+						pointPos.push(i);
+					}
+					lastAlpha = alpha;
+				}
+				//console.log(pointPos);
+
+				return pointPos.reduce(function(points, point){
+
+					var last = points[points.length-1];
+					if(!last || point - last[last.length-1] > distanceTreshold){
+						last = [point];
+						points.push(last);
+					} else {
+						last.push(point);
+					}
+
+					return points;
+				}, []).map(function(points){
+					return points[Math.floor(points.length/2)];
+				});
+			})();
+
+			console.log(breakPoints);
+			breakPoints.forEach(function(p){
+				showPoint(Raphael.getPointAtLength(pathStr, p), stage, '#00ff00', 2);
+			});/**/
+
+			var last = 0;
+			var tl = breakPoints.reduce(function(tl, dist) {
+				var time = (dist-last) / (pxPerSecond || settings.pxPerSecond);
+				last = dist;
+				return tl.to(anim, time, {to: dist, ease : settings.easing});
+			}, new gsap.TimelineMax({
+				onUpdate : update
+			})).to(anim, ((length - (breakPoints[breakPoints.length-1]||0)) / (pxPerSecond || settings.pxPerSecond)), {to: length, ease : settings.easing});
+
+			return tl;
 
 			return gsap.TweenMax.to(anim, time, {
 				to : length,
 				onUpdate : update,
-				ease : gsap.Quad.easeIn
+				ease : settings.easing
 			});
 			
 		};

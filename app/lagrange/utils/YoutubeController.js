@@ -10,18 +10,11 @@
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
-	if (typeof define === 'function' && define.amd) {
-		define(
-			'lagrange/utils/YoutubeController',//must be a string, not a var
-			[
-				'jquery',
-				'lagrange/utils/YoutubePlayer',
-				'lagrange/utils/MobileDetect',
-				'vendor/jquery.scrollto'
-			], function ($) {
-			return (ns[name] = factory($, YoutubePlayer, MobileDetect));
-		});
-	} else {
+
+	if (typeof exports === 'object') {
+	    // CommonJS
+	    ns[name] = module.exports = factory(require('jquery'), require('lagrange/utils/YoutubePlayer.js'), require('lagrange/utils/MobileDetect.js'), require('vendor/jquery.scrollto.js'));
+  	} else {
 		ns[name] = factory(root.jQuery, root.lagrange.utils.YoutubePlayer, root.lagrange.utils.MobileDetect);
 	}
 }(this, function ($, YoutubePlayer, MobileDetect) {

@@ -15,16 +15,10 @@
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
-	if (typeof define === 'function' && define.amd) {
-		define(
-			'lagrange/animation/jquery.AbstractButton',//must be a string, not a var
-			[
-				'jquery',
-				'TweenMax'
-			], function ($, TweenMax) {
-			return (ns[name] = factory($, TweenMax));
-		});
-	} else {
+	if (typeof exports === 'object') {
+	    // CommonJS
+	    ns[name] = module.exports = factory(require('jquery'), require('gsap'));
+  	} else {
 		ns[name] = factory(root.$, root.TweenMax);
 	}
 }(this, function ($, TweenMax) {

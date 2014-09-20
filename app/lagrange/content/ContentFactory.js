@@ -13,16 +13,11 @@
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
-	if (typeof define === 'function' && define.amd) {
-		define(
-			'lagrange/content/ContentFactory',//must be a string, not a var
-			[
-				'jquery',
-				'lagrange/content/Async'
-			], function ($, Async) {
-			return (ns[name] = factory($, Async));
-		});
-	} else {
+
+	if (typeof exports === 'object') {
+	    // CommonJS
+	    ns[name] = module.exports = factory(require('jquery'), require('lagrange/content/Async.js'));
+  	} else {
 		ns[name] = factory(root.$, root.lagrange.content.Async);
 	}
 }(this, function ($, Async) {

@@ -11,11 +11,14 @@
     "grunt-contrib-watch": "~0.4.4",
     "grunt": "~0.4.4",
     "grunt-browserify": "latest",
+    "grunt-bowercopy":"latest"
+  },
+  "dependencies" : {
     "jquery": "~2.1",
     "gsap": "latest",
     "es5-shim": "latest",
     "raphael" : "~2.1.0",
-    "grunt-bowercopy":"latest"
+    "lodash" : "latest"
   },
   "keywords": []
 }

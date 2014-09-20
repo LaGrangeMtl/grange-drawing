@@ -9,13 +9,11 @@
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
-	if (typeof define === 'function' && define.amd) {
-		define(
-			'lagrange/content/Async',//must be a string, not a var
-			['jquery', 'lagrange/utils/WindowUtils'], function ($, WU) {
-			return (ns[name] = factory($, WU));
-		});
-	} else {
+	
+	if (typeof exports === 'object') {
+	    // CommonJS
+	    ns[name] = module.exports = factory(require('jquery'), require('lagrange/utils/WindowUtils.js'));
+  	} else {
 		ns[name] = factory(root.jQuery, root.lagrange.utils.WindowUtils);
 	}
 }(this, function($, WU) {

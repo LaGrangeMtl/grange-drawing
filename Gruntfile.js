@@ -18,6 +18,21 @@ module.exports = function(grunt) {
 			}
 		},
 
+		bowercopy: {
+			options: {
+				srcPrefix: 'bower_components',
+			},
+			
+			lagrange: {
+				options: {
+					destPrefix: 'app',
+				},
+				 files: {
+					'lagrange' : 'lagrange/src/js/lagrange'
+				}
+			}
+		},
+
 		uglify: {
 			options: {
 				banner:  '<%= banner %>'
@@ -34,7 +49,7 @@ module.exports = function(grunt) {
 
 		browserify : {
 			options : {
-				external: ['es5-shim', 'gsap', 'jquery', 'raphael'],
+				external: ['es5-shim', 'gsap', 'jquery', 'raphael', 'lodash'],
 				browserifyOptions : {
 					debug: false
 				},
@@ -65,6 +80,7 @@ module.exports = function(grunt) {
 						'jquery:',
 						'raphael:',
 						'gsap:',
+						'lodash:',
 					],
 					external : null,
 				},
@@ -76,9 +92,11 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-browserify');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-bowercopy');
 
 	// Default task.
 	grunt.registerTask('default', ['browserify:dev']);
+	grunt.registerTask('prebuild', ['bowercopy']);
 	grunt.registerTask('jslibs', ['browserify:common', 'uglify:common']);
 	grunt.registerTask('build', ['browserify:prod', 'uglify:prod']);
 
