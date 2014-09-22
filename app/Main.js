@@ -21,7 +21,7 @@
 	Shuffle(names);
 	names.length = 1;/**/
 
-	//names = ['abcdefg'];
+	//names = ['ak'];
 
 
 	var getStage = (function(){
@@ -45,7 +45,7 @@
 				pxPerSecond : 200,
 				color : '#444444',
 				strokeWidth : 2,
-				easing : gsap.Sine.easeIn
+				easing : gsap.Sine.easeInOut
 			});
 
 		});
