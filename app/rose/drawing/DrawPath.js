@@ -82,105 +82,61 @@
 					el.attr({"stroke-width": settings.strokeWidth, stroke: settings.color});
 				};
 			})();
-
-				
 			
 			var breakPoints = (function(){
 
+				
 				var distanceTreshold = 40;
-				var angleTreshold = 12;
+				var angleTreshold = toRadians(12);
 
 				var pointPos = [];
-				/*
-				var lastAlpha, alpha, p, diff;
-				var max = length - distanceTreshold;
-				for(var i=distanceTreshold; i<=max; i += 2) {
-					//var pathPart = Raphael.getSubpath(pathStr, 0, i);
-					p = Raphael.getPointAtLength(pathStr, i);
-					alpha = p.alpha % 360;
-					if(!lastAlpha) {
-						lastAlpha = alpha;
-						continue;
-					}
-					var dif = Math.abs(alpha - lastAlpha);
-					//console.log(alpha, dif);
-					if(dif > angleTreshold) {
-						//console.log(alpha, alpha);
-						//showPoint(p, stage, '#ff0000');
-						pointPos.push(i);
-					}
-					lastAlpha = alpha;
-				}/**/
-
-				/*var a = 20;
-				var b = (a + 180) % 360;
-				var t = 4;
-				for(var i=0; i<=length; i += 1) {
-					//var pathPart = Raphael.getSubpath(pathStr, 0, i);
-					var p = Raphael.getPointAtLength(pathStr, i);
-					var alpha = p.alpha % 360;
-					if(Math.abs(alpha - a) < t) {
-						//showPoint(p, stage, '#ff0000');
-						pointPos.push(i);
-					}
-					if(Math.abs(alpha - b) < t) {
-						//showPoint(p, stage, '#00ff00');
-
-						pointPos.push(i);
-					}
-				}/**/
-				/*
-				var t = 2;
-				var at = 12;
-				for(var i=t; i<=length; i += t) {
-					//var pathPart = Raphael.getSubpath(pathStr, 0, i);
-					var p = Raphael.getPointAtLength(pathStr, i);
-					var p0 = Raphael.getPointAtLength(pathStr, i-t);
-					var p2 = Raphael.getPointAtLength(pathStr, i+t);
-					var alpha = p.alpha % 360;
-					var alpha0 = p0.alpha % 360;
-					var alpha2 = p2.alpha % 360;
-					if(Math.abs(alpha - alpha0) > at && Math.abs(alpha - alpha2) > at) {
-						//showPoint(p, stage, '#ff0000');
-						pointPos.push(i);
-					}
-				}/**/
-				//console.log(pointPos);
-
-				var t = 1;
-				var at = 12;
+				
+				
+				var precision = 1;
 				var prev;
-				var testPoints = [];
-				for(var i=t; i<=length; i += t) {
+				var allPoints = [];
+				for(var i=precision; i<=length; i += precision) {
 					//var pathPart = Raphael.getSubpath(pathStr, 0, i);
 					var p = Raphael.getPointAtLength(pathStr, i);
-					//var alpha = (p.alpha > 360 ? p.alpha - 180 : p.alpha) % 360;// > 360 ? p.alpha % 360 : p.alpha % 180;
-					var alpha = Math.abs(toDegrees( Math.asin( Math.sin(toRadians(p.alpha)) ) ));
+					
+					//it seems that Raphael's alpha is inconsistent... sometimes over 360
+					var alpha = Math.abs( Math.asin( Math.sin(toRadians(p.alpha)) ));
 					if(prev) {
 						p.diff = Math.abs(alpha - prev);
 					} else {
 						p.diff = 0;
 					}
-					p.alphaCorr = alpha;
 					prev = alpha;
 					//console.log(p.diff);
-					testPoints.push(p);
+
+					if(p.diff > angleTreshold) {
+						//console.log(i);
+						pointPos.push(i);
+					}
+
+					//p.computedAlpha = alpha;
+					//allPoints.push(p);
 
 				}/**/
-				var max = testPoints.reduce(function(m, p){
-					return p.diff > m && p.diff < 40 ? p.diff : m;
+
+				 /*
+				//DEBUG 
+				//find max curvature that is not a cusp (treshold determines cusp)
+				var cuspTreshold = 40;
+				var max = allPoints.reduce(function(m, p){
+					return p.diff > m && p.diff < cuspTreshold ? p.diff : m;
 				}, 0);
 				console.log(max);
 
 				var prev = [0,0,0,0];
-				testPoints.forEach(function(p){
+				allPoints.forEach(function(p){
 					var r = Math.round((p.diff / max) * 255);
 					var g = 255 - Math.round((p.diff / max) * 255);
 					var rgb = 'rgb('+r+','+g+',0)';
 					if(r>100) {
 						console.log('==========');
-						prev.forEach(function(p){console.log(p.alphaCorr, p.alpha);});
-						console.log(p.alphaCorr, p.alpha, rgb);
+						prev.forEach(function(p){console.log(p.computedAlpha, p.alpha);});
+						console.log(p.computedAlpha, p.alpha, rgb);
 					}
 					p.y += 150;
 					showPoint(p, stage, rgb, 0.5);
@@ -189,8 +145,9 @@
 					prev[1] = prev[0];
 					prev[0] = p;
 				});
+				/**/
 
-
+				//finds groups of points depending on treshold, and find the middle of each group
 				return pointPos.reduce(function(points, point){
 
 					var last = points[points.length-1];
@@ -209,7 +166,8 @@
 
 			console.log(breakPoints);
 			breakPoints.forEach(function(p){
-				showPoint(Raphael.getPointAtLength(pathStr, p), stage, '#00ff00', 3);
+				var pObj = Raphael.getPointAtLength(pathStr, p);
+				showPoint(pObj, stage, '#00ff00', 3);
 			});/**/
 
 			var last = 0;
@@ -243,6 +201,7 @@
 	Static. Returns a timelinemax of all the paths in the group, drawn one at a time.
 	*/
 	DrawPath.group = function(paths, stage, settings, onComplete) {
+
 		return paths.reduce(function(tl, path){
 			var drawingPath = DrawPath.factory().init(path, stage, settings);
 			return tl.append(drawingPath.draw());

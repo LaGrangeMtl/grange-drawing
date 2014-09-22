@@ -18,7 +18,7 @@
 		for(var j, x, i = o.length; i; j = parseInt(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
 		return o;
 	};
-	Shuffle(names);
+	//Shuffle(names);
 	names.length = 1;/**/
 
 	//names = ['ak'];
@@ -40,13 +40,16 @@
 			//traceName(name, 0, k * incr);
 
 			var paths = VectorWord.getPaths(name, 0, k * incr, scaleFactor);
-
+			var start = new Date();
 			DrawPath.group(paths, getStage(), {
 				pxPerSecond : 200,
 				color : '#444444',
 				strokeWidth : 2,
 				easing : gsap.Sine.easeInOut
 			});
+
+			var end = new Date();
+			console.log(end-start);
 
 		});
 
