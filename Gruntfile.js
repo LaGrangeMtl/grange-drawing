@@ -28,7 +28,6 @@ module.exports = function(grunt) {
 					destPrefix: 'app',
 				},
 				 files: {
-					'lagrange' : 'lagrange/src/js/lagrange'
 				}
 			}
 		},
