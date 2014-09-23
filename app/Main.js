@@ -8,7 +8,7 @@
 
 	var gsap = window.GreenSockGlobals || window;
 
-	var W = 1400;
+	var W = 1600;
 	var H = 1200;
 
 	var scaleFactor = 1;
@@ -18,7 +18,7 @@
 		for(var j, x, i = o.length; i; j = parseInt(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
 		return o;
 	};
-	//Shuffle(names);
+	Shuffle(names);
 	names.length = 1;/**/
 
 	//names = ['ak'];
@@ -60,5 +60,17 @@
 
 	btn.on('click.alphabet', function(){
 		loading.then(doDraw);
+	});
+
+
+	//parse les breakpoints de chaque lettre, output en JSON (à saver)
+	var printEasepoints = function(){
+		Alphabet.parseEasepoints(getStage(), $('#brp'), [W, H]);
+	};
+
+	var getBpr = $('#getbrp');
+
+	getBpr.on('click.alphabet', function(){
+		loading.then(printEasepoints);
 	});
 

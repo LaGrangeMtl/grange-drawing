@@ -32,10 +32,12 @@
 		s : 4
 	};
 
-	var Path = function(svg, name, parsed) {
+	var Path = function(svg, name, parsed, easePoints) {
 		this.svg = svg;
 		this.name = name;
 		//if(svg) console.log(svg, parsed);
+		this.easePoints = easePoints || [];
+		//console.log(name, easePoints);
 		this.setParsed(parsed || this.parse(svg));
 	};
 
@@ -78,6 +80,18 @@
 		return this.parsed.reduce(function(svg, segment){
 			return svg + segment.type + segment.anchors.join(','); 
 		}, '');
+	};
+
+	/**
+	Gets the positions at which we have ease points (which are preparsed and considered part of the path's definitions)
+	*/
+	Path.prototype.getEasepoints = function() {
+		return this.easePoints;
+	};
+
+	Path.prototype.getPoint = function(idx) {
+		//console.log(this.parsed);
+		return this.parsed[idx] && this.parsed[idx].anchors;
 	};
 
 	/**
@@ -150,9 +164,10 @@
 			});
 			return newDef;
 		});
-		return Path.factory(null, this.name, parsed);
+		return Path.factory(null, this.name, parsed, this.easePoints);
 	};
 
+	//returns a new path, scaled
 	Path.prototype.scale = function(ratio) {
 		var parsed = this.parsed.map(function(def) {
 			var newDef = Object.create(def);
@@ -161,7 +176,10 @@
 			});
 			return newDef;
 		});
-		return Path.factory(null, this.name, parsed);
+		var easePoints = this.easePoints.map(function(ep){
+			return ep * ratio;
+		});
+		return Path.factory(null, this.name, parsed, easePoints);
 	};
 
 	Path.prototype.append = function(part, name) {
@@ -170,10 +188,14 @@
 		this.setParsed(this.parsed.concat(part.parsed.slice(1)));
 	};
 
-	Path.prototype.refineBounding = refineBounding;
+	Path.prototype.addEasepoint = function(pos){
+		this.easePoints.push(pos);
+	};
 
-	Path.factory = function(svg, name, parsed) {
-		return new Path(svg, name, parsed);
+	Path.refineBounding = refineBounding;
+
+	Path.factory = function(svg, name, parsed, easePoints) {
+		return new Path(svg, name, parsed, easePoints);
 	};
 
 	return Path;

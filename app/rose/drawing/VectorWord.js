@@ -29,6 +29,7 @@
 			var continuous = false;
 			var lines = [];
 
+			//loop for every character in name (string)
 			for(var i=0; i<name.length; i++) {
 				var letter = name[i];
 				if(letter === ' ') {
@@ -36,8 +37,7 @@
 					continuous = false;
 					continue;
 				}
-				var letterDef = Alphabet.getLetter(letter);
-				letterDef = letterDef.scale(scale);
+				var letterDef = Alphabet.getLetter(letter).scale(scale);
 				//console.log(letterDef);
 				
 				var letterJoinedEnd = false;
@@ -50,6 +50,13 @@
 					if(joinedStart && continuous) {
 						//append au continuous
 						continuous.append(def, letter);
+
+						//ajoute les easepoints de ce path
+						var pathStartPos = continuous.getLength() - def.getLength();
+						def.getEasepoints().forEach(function(pos){
+							continuous.addEasepoint(pathStartPos + pos);
+						});
+
 					} else if(joinedEnd && !continuous) {
 						//start un nouveau line
 						continuous = def;
@@ -65,7 +72,7 @@
 
 				});
 				
-				right += letterDef.bounding[1][0];
+				right += letterDef.getWidth();
 				//console.table([{letter:name[i], letterWidth: letter.bounding[1][0], total:right}]);	
 			}
 
