@@ -8,8 +8,8 @@
 
 	var gsap = window.GreenSockGlobals || window;
 
-	var W = 1600;
-	var H = 1200;
+	var W = 1200;
+	var H = 1600;
 
 	var scaleFactor = 1;
 
@@ -21,7 +21,7 @@
 	Shuffle(names);
 	names.length = 1;/**/
 
-	names = ['aksttef'];
+	//names = ['aksttef'];
 
 
 	var getStage = (function(){
