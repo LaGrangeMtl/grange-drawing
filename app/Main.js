@@ -1,9 +1,14 @@
 	
 	var $ = require('jquery');
 	var Raphael = require('raphael');
-	var DrawPath = require('app/rose/drawing/DrawPath.js');
-	var VectorWord = require('app/rose/drawing/VectorWord.js');
-	var Alphabet = require('app/rose/drawing/Alphabet.js');
+	var DrawPath = require('lagrange/drawing/DrawPath.js');
+	var VectorWord = require('lagrange/drawing/VectorWord.js');
+	var Alphabet = require('lagrange/drawing/Alphabet.js');
+
+	var EmilieFont = require('lagrange/drawing/EmilieFont.js');
+
+
+
 	var TweenMax = require('gsap');
 
 	var gsap = window.GreenSockGlobals || window;
@@ -55,7 +60,7 @@
 
 	};
 
-	var loading = Alphabet.init();	
+	var loading = Alphabet.init(EmilieFont);	
 	var btn = $('#ctrl');
 
 	btn.on('click.alphabet', function(){

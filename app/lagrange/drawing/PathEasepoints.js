@@ -5,23 +5,33 @@
  * 
 */
 (function (root, factory) {
-	var nsParts = 'rose/drawing/PathEasepoints'.split('/');
+	var nsParts = 'lagrange/drawing/PathEasepoints'.split('/');
 	var name = nsParts.pop();
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
 	if (typeof exports === 'object') {
 	    // CommonJS
-	    ns[name] = module.exports = factory(require('jquery'), require('lodash'), require('raphael'), require('rose/drawing/MathUtils.js'));
+	    ns[name] = module.exports = factory(require('jquery'), require('lodash'), require('raphael'));
   	} else {
-		ns[name] = factory(root.jQuery, root._, root.Raphael, ns.MathUtils);
+		ns[name] = factory(root.jQuery, root._, root.Raphael);
 	}
-}(this, function ($, _, Raphael, MathUtils) {
+}(this, function ($, _, Raphael) {
 	"use strict";
+
+	var degToRad = Math.PI / 180;
+	var radToDeg = 180 / Math.PI;
+	var toRadians = function(degrees) {
+	  return degrees * degToRad;
+	};	 
+	// Converts from radians to degrees.
+	var toDegrees = function(radians) {
+	  return radians * radToDeg;
+	};
 
 
 	var distanceTreshold = 40;
-	var angleTreshold = MathUtils.toRadians(12);
+	var angleTreshold = toRadians(12);
 
 	var stage;
 
@@ -53,7 +63,7 @@
 			var p = Raphael.getPointAtLength(pathStr, i);
 			
 			//it seems that Raphael's alpha is inconsistent... sometimes over 360
-			var alpha = Math.abs( Math.asin( Math.sin(MathUtils.toRadians(p.alpha)) ));
+			var alpha = Math.abs( Math.asin( Math.sin(toRadians(p.alpha)) ));
 			if(prev) {
 				p.diff = Math.abs(alpha - prev);
 			} else {

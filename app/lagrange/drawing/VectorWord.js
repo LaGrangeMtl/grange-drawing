@@ -6,16 +6,16 @@
  * module pattern : https://github.com/umdjs/umd/blob/master/amdWebGlobal.js
 */
 (function (root, factory) {
-	var nsParts = 'rose/drawing/VectorWord'.split('/');
+	var nsParts = 'lagrange/drawing/VectorWord'.split('/');
 	var name = nsParts.pop();
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
 	}, root);
 	if (typeof exports === 'object') {
 	    // CommonJS
-	    module.exports = factory(require('rose/drawing/Alphabet.js'));
+	    module.exports = factory(require('lagrange/drawing/Alphabet.js'));
   	} else {
-		ns[name] = factory(rose.drawing.Alphabet);
+		ns[name] = factory(lagrange.drawing.Alphabet);
 	}
 }(this, function (Alphabet) {
 	"use strict";

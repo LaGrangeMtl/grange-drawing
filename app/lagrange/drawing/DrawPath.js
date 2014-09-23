@@ -5,7 +5,7 @@
  * 
 */
 (function (root, factory) {
-	var nsParts = 'rose/drawing/DrawPath'.split('/');
+	var nsParts = 'lagrange/drawing/DrawPath'.split('/');
 	var name = nsParts.pop();
 	var ns = nsParts.reduce(function(prev, part){
 		return prev[part] = (prev[part] || {});
