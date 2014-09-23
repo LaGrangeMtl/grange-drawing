@@ -13,11 +13,11 @@
 	}, root);
 	if (typeof exports === 'object') {
 	    // CommonJS
-	    module.exports = factory(require('jquery'), require('lagrange/drawing/Path.js'), require('app/rose/drawing/PathEasepoints.js'));
+	    module.exports = factory(require('jquery'), require('lagrange/drawing/Path.js'), require('lagrange/drawing/PathGroup.js'), require('app/rose/drawing/PathEasepoints.js'));
   	} else {
-		ns[name] = factory(root.jQuery, root.lagrange.drawing.Path, root.lagrange.drawing.PathEasepoints);
+		ns[name] = factory(root.jQuery, root.lagrange.drawing.Path, root.lagrange.drawing.PathGroup, root.lagrange.drawing.PathEasepoints);
 	}
-}(this, function ($, Path, PathEasepoints) {
+}(this, function ($, Path, PathGroup, PathEasepoints) {
 	"use strict";
 
 	//original scale factor
@@ -29,69 +29,9 @@
 
 	var letters = {};
 
-	var Letter = function(name){
-		this.name = name;
-	};
+	
 
-	Letter.prototype.setBounding = function(){
-		this.bounding = this.paths.reduce(function(bounding, path){
-			var pathBounding = path.findBounding();
-			bounding = bounding || pathBounding;
-			bounding = Path.refineBounding(bounding, pathBounding);
-			return bounding;
-		}, undefined);
-		//if there's a bottomright point that is set, use its coordinates as bounding
-		if(this.bottomRight) {
-			var anchors = this.bottomRight.getPoint(0);
-			this.bounding[1] = [anchors[0], anchors[1]];
-		}
-	};
-
-	Letter.prototype.addPath = function(p){
-		this.paths = this.paths || [];
-		if(p.name && p.name.indexOf('end') === 0) {
-			this.bottomRight = p;
-		} else {
-			this.paths.push(p);
-		}
-	};
-
-	Letter.prototype.getHeight = function(){
-		return this.bounding[0][1];
-	};
-
-	Letter.prototype.getWidth = function(){
-		return this.bounding[1][0];
-	};
-
-	Letter.prototype.setOffset = function(offset){
-		this.offset = offset;
-		this.paths = this.paths.map(function(path) {
-			//console.log(path.parsed[0].anchors[1]);
-			path = path.translate(offset);
-			//console.log(path.parsed[0].anchors[1]);
-			return path;
-		});
-		this.bottomRight = (this.bottomRight && this.bottomRight.translate(offset));
-		this.setBounding();
-	};
-
-	//returns a new letter, scaled
-	Letter.prototype.scale = function(scale){
-		if(!this.paths) return this;
-		var scaled = new Letter(this.name);
-		this.paths.forEach(function(path){
-			scaled.addPath(path.scale(scale));
-		});
-
-		scaled.bottomRight = (this.bottomRight && this.bottomRight.scale(scale));
-		scaled.setBounding();
-		return scaled;
-	};
-
-	var maxHeight;
 	var parseSVG = function(data){
-		var boundings = [];
 
 		//console.log(data);
 		var doc = $(data);
@@ -106,41 +46,34 @@
 			
 			if(id.length > 1) return;
 
-			var letter = letters[id] = new Letter(id);
+			var letter = letters[id] = new PathGroup(id);
 
 			var paths = layer.find('path');
 			//if(paths.length==0) console.log(layer);
 			//console.log(id);
-			var letterPathsBounding = [];
 			paths.each(function(i, el){
 				var pathEl = $(el);
-
-				var p = Path.factory( pathEl.attr('d'), pathEl.attr('id'), null, EASEPOINTS[id] && EASEPOINTS[id][i]).scale(SCALE);
-				
+				var p = Path.factory( pathEl.attr('d'), pathEl.attr('id'), null, EASEPOINTS[id] && EASEPOINTS[id][i]).scale(SCALE);				
 				letter.addPath( p );
 			});
-
-			letter.setBounding();
-
-			boundings.push(letter.bounding);
 
 		});
 
 		//console.log(boundings);
 		//trouve le top absolu (top de la lettre la plus haute)
-		maxHeight = boundings.reduce(function(min, bounding){
-			if(min === undefined || min > bounding[0][1]) {
-				min = bounding[0][1];
+		var top = Object.keys(letters).reduce(function(min, letterName){
+			var t = letters[letterName].getTop();
+			if(min === undefined || min > t) {
+				min = t;
 			}
 			return min;
 		}, undefined);
 		//console.log(top);
 		//console.log(letters);
 
-		var keys = Object.keys(letters);
 		//ajuste le baseline de chaque lettre
-		keys.forEach(function(key) {
-			letters[key].setOffset([-1 * letters[key].bounding[0][0], -1 * maxHeight]);
+		Object.keys(letters).forEach(function(key) {
+			letters[key].setOffset(-1 * letters[key].getLeft(), -1 * top);
 		});
 
 
@@ -177,7 +110,8 @@
 		},
 		//setup des breakpoints (points où on fait un easing) de chacune des lettres. Sera outputté et savé en JSON, pour être loadé en même temps que l'alphabet. Le parse en realtime est trop lent, donc cette fonction doit etre callée pour refaire les breakpoints chaque fois que le SVG change.
 		parseEasepoints : function(stage, node, dim){
-			PathEasepoints(stage, letters, node, dim, maxHeight);
+
+			PathEasepoints(stage, letters, node, dim);
 		}
 	};
 

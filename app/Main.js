@@ -21,7 +21,7 @@
 	Shuffle(names);
 	names.length = 1;/**/
 
-	//names = ['ak'];
+	names = ['aksttef'];
 
 
 	var getStage = (function(){

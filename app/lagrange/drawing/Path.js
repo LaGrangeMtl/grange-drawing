@@ -33,39 +33,20 @@
 	};
 
 	var Path = function(svg, name, parsed, easePoints) {
-		this.svg = svg;
 		this.name = name;
 		//if(svg) console.log(svg, parsed);
 		this.easePoints = easePoints || [];
 		//console.log(name, easePoints);
-		this.setParsed(parsed || this.parse(svg));
+		this._setParsed(parsed || this._parse(svg));
 	};
 
-	var refineBounding = function(bounding, point) {
-		bounding[0] = bounding[0] || point.slice(0);
-		bounding[1] = bounding[1] || point.slice(0);
-		//top left
-		if(point[0] < bounding[0][0]) bounding[0][0] = point[0];
-		if(point[1] < bounding[0][1]) bounding[0][1] = point[1];
-		//bottom right
-		if(point[0] > bounding[1][0]) bounding[1][0] = point[0];
-		if(point[1] > bounding[1][1]) bounding[1][1] = point[1];
-		return bounding;
-	};
-
-
-	Path.prototype.setSVG = function(svg) {
-		this.svg = svg;
-	};
-
-	Path.prototype.setParsed = function(parsed) {
+	Path.prototype._setParsed = function(parsed) {
 		//console.log(parsed);
 		this.parsed = parsed;
-		this.findBounding();
 	};
 
 	Path.prototype.getCubic = function() {
-		return this.cubic || this.parseCubic();
+		return this.cubic || this._parseCubic();
 	};
 
 
@@ -97,7 +78,7 @@
 	/**
 	Parses an SVG path string to a list of segment definitions with ABSOLUTE positions using Raphael.path2curve
 	*/
-	Path.prototype.parse = function(svg) {
+	Path.prototype._parse = function(svg) {
 		var curve = Raphael.path2curve(svg);
 		var path = curve.map(function(point){
 			return {
@@ -116,7 +97,7 @@
 			useFrames : true
 		});
 		*/
-	Path.prototype.parseCubic = function() {
+	Path.prototype._parseCubic = function() {
 		//console.log(path);
 		//assumed first element is a moveto
 		var anchors = this.cubic = this.parsed.reduce(function(anchors, segment){
@@ -141,58 +122,38 @@
 	};
 
 	//trouve le bounding box d'une lettre (en se fiant juste sur les points... on ne calcule pas ou passe le path)
-	Path.prototype.findBounding = function() {
-		var bounding = this.bounding = this.parsed.reduce(function(bounding, p){
-			var anchors = p.anchors;
-			var point;
-			if(anchors.length === 2) {
-				point = [anchors[0], anchors[1]];
-			} else if(anchors.length === 6) {
-				point = [anchors[4], anchors[5]];
-			}
-			return refineBounding(bounding, point);
-		}, []);
-		return bounding;
+	Path.prototype.getBounding = function() {
+		return Raphael.pathBBox(this.getSVGString());
 	};
 
 
-	Path.prototype.translate = function(offset) {
-		var parsed = this.parsed.map(function(def) {
-			var newDef = Object.create(def);
-			newDef.anchors = def.anchors.map(function(coord, i){
-				return coord += offset[i%2];
-			});
-			return newDef;
-		});
-		return Path.factory(null, this.name, parsed, this.easePoints);
+	Path.prototype.translate = function(x, y) {
+		var m = Raphael.matrix();
+		m.translate(x, y);
+		var svg = Raphael.mapPath(this.getSVGString(), m);
+		return Path.factory(svg, this.name, null, this.easePoints);
 	};
 
 	//returns a new path, scaled
 	Path.prototype.scale = function(ratio) {
-		var parsed = this.parsed.map(function(def) {
-			var newDef = Object.create(def);
-			newDef.anchors = def.anchors.map(function(coord, i){
-				return coord *= ratio;
-			});
-			return newDef;
-		});
+		var m = Raphael.matrix();
+		m.scale(ratio);
+		var svg = Raphael.mapPath(this.getSVGString(), m);
 		var easePoints = this.easePoints.map(function(ep){
 			return ep * ratio;
 		});
-		return Path.factory(null, this.name, parsed, easePoints);
+		return Path.factory(svg, this.name, null, easePoints);
 	};
 
 	Path.prototype.append = function(part, name) {
 		//console.log(part);
 		if(name) this.name += name;
-		this.setParsed(this.parsed.concat(part.parsed.slice(1)));
+		this._setParsed(this.parsed.concat(part.parsed.slice(1)));
 	};
 
 	Path.prototype.addEasepoint = function(pos){
 		this.easePoints.push(pos);
 	};
-
-	Path.refineBounding = refineBounding;
 
 	Path.factory = function(svg, name, parsed, easePoints) {
 		return new Path(svg, name, parsed, easePoints);

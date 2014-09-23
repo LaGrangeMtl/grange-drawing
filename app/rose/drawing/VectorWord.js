@@ -42,7 +42,7 @@
 				
 				var letterJoinedEnd = false;
 				letterDef.paths.forEach(function(path) {
-					var def = path.translate([right, top]);
+					var def = path.translate(right, top);
 					var joinedStart = def.name && def.name.indexOf('joina') > -1;
 					var joinedEnd = /join(a?)b/.test(def.name);
 					//console.log(letter, joinedStart, joinedEnd);
@@ -73,7 +73,7 @@
 				});
 				
 				right += letterDef.getWidth();
-				//console.table([{letter:name[i], letterWidth: letter.bounding[1][0], total:right}]);	
+				//console.table([{letter:name[i], letterWidth: letter.getWidth(), total:right}]);	
 			}
 
 			return lines;

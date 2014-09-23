@@ -130,10 +130,18 @@
 
 	};
 
-	return function(s, groups, printNode, dim, groupMaxHeight){
+	return function(s, groups, printNode, dim){
 		stage = s;
 		var pad = 20;
 		var availW = dim[0] - pad;
+
+		var groupMaxHeight = Object.keys(groups).reduce(function(min, groupName){
+			var t = groups[groupName].getHeight();
+			if(min === undefined || min > t) {
+				min = t;
+			}
+			return min;
+		}, undefined);
 		
 		var topLeft = {x:pad, y:pad};
 		var easePoints = Object.keys(groups).reduce(function(all, name){
@@ -144,13 +152,13 @@
 
 			if(endLeft > availW) {
 				topLeft.x = pad;
-				topLeft.y += pad + (groupMaxHeight / 2);
+				topLeft.y += pad + groupMaxHeight;
 				endLeft = topLeft.x + group.getWidth() + pad;
 			}
 
 
 			var thisEase = group.paths.map(function(p){
-				p = p.translate([topLeft.x, topLeft.y]);
+				p = p.translate(topLeft.x, topLeft.y);
 				return findDefaults(p);
 			});
 			all[name] = thisEase;
