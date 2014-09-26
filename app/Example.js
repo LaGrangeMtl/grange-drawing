@@ -1,14 +1,11 @@
 	
 	var $ = require('jquery');
 	var Raphael = require('raphael');
-	var DrawPath = require('lagrange/drawing/DrawPath.js');
-	var VectorWord = require('lagrange/drawing/VectorWord.js');
-	var Alphabet = require('lagrange/drawing/Alphabet.js');
-
-	var EmilieFont = require('lagrange/drawing/EmilieFont.js');
-
-
-
+	var EmilieFont = require('./lagrange/drawing/EmilieFont.js');
+	var DrawPath = require('./lagrange/drawing/DrawPath');
+	var VectorWord = require('./lagrange/drawing/VectorWord');
+	var Alphabet = require('./lagrange/drawing/Alphabet');
+	var PathEasepoints = require('./lagrange/drawing/PathEasepoints');/**/
 	var TweenMax = require('gsap');
 
 	var gsap = window.GreenSockGlobals || window;
@@ -68,9 +65,10 @@
 	});
 
 
-	//parse les breakpoints de chaque lettre, output en JSON (à saver)
+	//parse les easepoints de chaque lettre, output en JSON (à saver)
 	var printEasepoints = function(){
-		Alphabet.parseEasepoints(getStage(), $('#brp'), [W, H]);
+		PathEasepoints(getStage(), Alphabet.getAll(), $('#brp'), [W, H]);
+
 	};
 
 	var getBpr = $('#getbrp');

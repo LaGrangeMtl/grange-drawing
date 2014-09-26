@@ -29,9 +29,7 @@ nbproject
 .idea
 
 
-/test
 _workdir
 _unused
-built
 node_modules
 bower_components

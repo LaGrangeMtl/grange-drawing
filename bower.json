@@ -1,14 +1,17 @@
 {
   "name": "lagrange-drawing",
+  "title": "La Grange Drawing",
   "version": "0.0.1",
+  "description":"Utils to draw svg paths as if someone was tracing them",
+  "keywords" : ["svg","raphael","gsap"],
+  "main":["app/lagrange"],
+  "ignore":["js"],
   "dependencies": {
-	"bootstrap": "~3.0.3",
-	"EaselJS": "latest",
-	"gsap": "latest",
+  	"raphael": "latest",
+  	"gsap": "latest",
     "jquery": "latest",
     "es5-shim" : "latest",
-	"underscore" : "latest",
-	"modernizr" : "latest"
+  	"lodash" : "latest"
   },
   "private": false
 }

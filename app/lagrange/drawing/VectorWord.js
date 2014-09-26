@@ -13,7 +13,7 @@
 	}, root);
 	if (typeof exports === 'object') {
 	    // CommonJS
-	    module.exports = factory(require('lagrange/drawing/Alphabet.js'));
+	    module.exports = factory(require('./Alphabet'));
   	} else {
 		ns[name] = factory(lagrange.drawing.Alphabet);
 	}

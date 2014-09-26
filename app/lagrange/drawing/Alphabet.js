@@ -12,11 +12,11 @@
 	}, root);
 	if (typeof exports === 'object') {
 	    // CommonJS
-	    module.exports = factory(require('jquery'), require('lagrange/drawing/Path.js'), require('lagrange/drawing/PathGroup.js'), require('lagrange/drawing/PathEasepoints.js'));
+	    module.exports = factory(require('jquery'), require('./Path'), require('./PathGroup'));
   	} else {
-		ns[name] = factory(root.jQuery, root.lagrange.drawing.Path, root.lagrange.drawing.PathGroup, root.lagrange.drawing.PathEasepoints);
+		ns[name] = factory(root.jQuery, root.lagrange.drawing.Path, root.lagrange.drawing.PathGroup);
 	}
-}(this, function ($, Path, PathGroup, PathEasepoints) {
+}(this, function ($, Path, PathGroup) {
 	"use strict";
 
 	var settings;
@@ -101,10 +101,8 @@
 		getNSpace : function(){
 			return letters['n'].getWidth();
 		},
-		//setup des breakpoints (points où on fait un easing) de chacune des lettres. Sera outputté et savé en JSON, pour être loadé en même temps que l'alphabet. Le parse en realtime est trop lent, donc cette fonction doit etre callée pour refaire les breakpoints chaque fois que le SVG change.
-		parseEasepoints : function(stage, node, dim){
-
-			PathEasepoints(stage, letters, node, dim);
+		getAll : function(){
+			return letters;
 		}
 	};
 
