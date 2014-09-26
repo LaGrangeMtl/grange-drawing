@@ -3,7 +3,6 @@
  * @author Martin Vézina <m.vezina@la-grange.ca>
  * @copyright 2014 Martin Vézina <m.vezina@la-grange.ca>
  * 
- * module pattern : https://github.com/umdjs/umd/blob/master/amdWebGlobal.js
 */
 (function (root, factory) {
 	var nsParts = 'lagrange/drawing/Alphabet'.split('/');

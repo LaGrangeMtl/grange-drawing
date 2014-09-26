@@ -1,5 +1,5 @@
 {
-  "name": "lagrange drawing",
+  "name": "lagrange-drawing",
   "version": "0.0.1",
   "dependencies": {
 	"bootstrap": "~3.0.3",
@@ -10,6 +10,6 @@
 	"underscore" : "latest",
 	"modernizr" : "latest"
   },
-  "private": true
+  "private": false
 }
 
