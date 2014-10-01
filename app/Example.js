@@ -11,10 +11,10 @@
 	var gsap = window.GreenSockGlobals || window;
 
 	var W = 1200;
+	var CENTER = W / 2;
 	var H = 1600;
 	var T = 50;
 	var LINE_HEIGHT = 1.2;//em
-	var availableWidth = W / 2;
 	var SPEED = 250;//px per sec
 
 
@@ -27,11 +27,11 @@
 	//names.length = 1;/**/
 	var words = [
 		{
-			text : 'T',
+			text : 'a',
 			size : 0.8
 		},
 		{
-			text : 'Rldt',//names.pop(),
+			text : 'aaaaaaa ',//names.pop(),
 			size : 1
 		}
 	];
@@ -61,6 +61,13 @@
 		}
 	})();
 
+		//helper
+	var showPoint = function(point, color, size){
+		var el = getStage().circle(point.x, point.y, size || 2);
+		el.attr({fill: color || '#ff0000', "stroke-width":0});
+		return el;
+	};
+
 	var doDraw = function(){
 		var top = T;
 		var tl = words.reduce(function(tl, params, lineNum){
@@ -79,33 +86,79 @@
 
 			//ajoute le guidi sur le dernier mot
 			if(lineNum === words.length -1) {
-				var end = guidis.getSymbol('endNom');
-				end = end && end.getPaths()[0];
+				var curve = guidis.getSymbol('wordDecorationEnd');
+				curve = curve.getPaths()[0];
 				
-				var endStr = end.getSVGString();
-				var length = end.getLength();
+				var curveStr = curve.getSVGString();
+				//trouve les points de départ et d'arrivée de la curve
+				var startPos = Raphael.getPointAtLength(curveStr, 0);
+				var endPos = Raphael.getPointAtLength(curveStr, curve.getLength());
+				/*console.log(startPos);
+				console.log(endPos);/**/
 
-				var startPos = Raphael.getPointAtLength(endStr, 0);
-				var endPos = Raphael.getPointAtLength(endStr, length);
+				var guidiOrigH = endPos.y - startPos.y;
+				var finalBottom = top+guidiOrigH;
 
 				var wordPaths = word.getPaths();
-				//trouve le path le plus à droite
+				//trouve le path le plus à droite dans les lettres
 				var lastPath = wordPaths.reduce(function(last, cur){
 					last = last || cur;
 					var bbLast = last.getBounding();
 					var bbCur = cur.getBounding();
-					if(bbLast.x2 < bbCur.x2) last = cur;
+
+					if(bbLast.y2 < bbCur.y2){
+						last = cur;
+					}
+
 					return last;
 				}, null);
 				console.log(word.name);
 
 				var bb = lastPath.getBounding();
-				end = end.translate(bb.x2 - startPos.x, bb.y2 - startPos.y);
+				//console.log('bb', bb);
+				var targetStartPos = {
+					x: bb.x2 - startPos.x,
+					y: bb.y2 - startPos.y
+				};
+
+				/*showPoint({x:bb.x2, y:bb.y2}, '#22ff00');
+				showPoint(targetStartPos, '#ff0000');/**/
+
+				//à combien de distance le boute est du début
+				var currentEndPos = {
+					x: endPos.x - startPos.x,
+					y: endPos.y - startPos.y
+				};
+
+				//à quel endroit on doit faire arriver le endpos, relatif au début du path
+				var targetEndPos = {
+					x: CENTER - bb.x2,
+					y: finalBottom - bb.y2
+				};
+
+				var ratio = {
+					x : targetEndPos.x / currentEndPos.x,
+					y : targetEndPos.y / currentEndPos.y,
+				};
+				console.log('start at',targetStartPos);
+				console.log(targetEndPos);
+				console.log(ratio, currentEndPos);
+
+				var m = Raphael.matrix();
+				m.scale(ratio.x, ratio.y, targetStartPos.x+startPos.x, targetStartPos.y);
+				m.translate(targetStartPos.x, targetStartPos.y);
+				curve = curve.applyMatrix(m);
+
+
+				/*var m = Raphael.matrix();
+				m.scale(ratio.x, ratio.y, targetStartPos.x+startPos.x, targetStartPos.y);
+				curve = curve.applyMatrix(m);/**/
 
 				//var lastPath = wordPaths[wordPaths.length-1];
 				console.log(lastPath.name);
 
-				lastPath.append(end);
+				lastPath.append(curve);
+				//word.addPath(curve);
 				
 			}
 

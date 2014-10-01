@@ -146,6 +146,14 @@
 		return Path.factory(svg, this.name, null, easePoints);
 	};
 
+	Path.prototype.applyMatrix = function(m){
+		var svg = Raphael.mapPath(this.getSVGString(), m);
+		var easePoints = this.easePoints.map(function(ep){
+			return ep ;//;
+		});
+		return Path.factory(svg, this.name, null, easePoints);
+	}; 
+
 	Path.prototype.append = function(part, name) {
 		//console.log(part);
 		if(name) this.name += name;
