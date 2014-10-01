@@ -135,7 +135,8 @@
 	};
 
 	//returns a new path, scaled
-	Path.prototype.scale = function(ratio) {
+	Path.prototype.scale = Path.prototype.clone = function(ratio) {
+		ratio = ratio || 1;
 		var m = Raphael.matrix();
 		m.scale(ratio);
 		var svg = Raphael.mapPath(this.getSVGString(), m);
@@ -152,6 +153,7 @@
 	};
 
 	Path.prototype.addEasepoint = function(pos){
+		//console.log(this.easePoints, pos);
 		this.easePoints.push(pos);
 	};
 

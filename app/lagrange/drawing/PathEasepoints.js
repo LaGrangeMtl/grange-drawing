@@ -19,6 +19,8 @@
 }(this, function ($, _, Raphael) {
 	"use strict";
 
+	var GET_DEFAULTS = false;
+
 	var degToRad = Math.PI / 180;
 	var radToDeg = 180 / Math.PI;
 	var toRadians = function(degrees) {
@@ -139,7 +141,7 @@
 
 		//are ease points already set for this path?
 		var pathEasePoints = pathDef.getEasepoints(); 
-		if(pathEasePoints.length === 0) {
+		if(pathEasePoints.length === 0 && GET_DEFAULTS) {
 			pathEasePoints = findDefaults(pathDef);
 		}
 
@@ -153,7 +155,7 @@
 		var addPoint = function(pos){
 			var pObj = Raphael.getPointAtLength(pathStr, pos);
 			var point = showPoint(pObj, inactiveColor, 3);
-
+			//console.log(pathIdx);
 			point.data('pos', pos);
 			point.data('letter', letter);
 			point.data('pathIdx', pathIdx);
@@ -185,7 +187,7 @@
 		pathEasePoints.forEach(addPoint);/**/
 
 		path.click(function(){
-			console.log('add');
+			//console.log('add');
 			addPoint(0);
 		});
 		
@@ -233,7 +235,7 @@
 					e.preventDefault();
 					moveCurrent(-1);
 					break;
-				case UP:
+				case DOWN:
 					e.preventDefault();
 					moveCurrent(-10);
 					break;
@@ -241,15 +243,17 @@
 					e.preventDefault();
 					moveCurrent(1);
 					break;
-				case DOWN:
+				case UP:
 					e.preventDefault();
 					moveCurrent(10);
 					break;
 				case DEL:
 					e.preventDefault();
 					var idx = allPoints.indexOf(current.point);
+					//console.log(idx);
 					current.point.remove();
 					allPoints.splice(idx, 1);
+					//console.log(allPoints);
 					current = null;
 					printJSON();
 					break;
@@ -270,6 +274,9 @@
 			var paths = json[letter] = json[letter] || [];
 			var easepoints = paths[pathIdx] = paths[pathIdx] || [];
 			easepoints.push(point.data('pos'));
+			easepoints.sort(function(a, b){
+				return a - b;
+			});
 			return json;
 		}, {});
 		printNode.text(JSON.stringify(json));

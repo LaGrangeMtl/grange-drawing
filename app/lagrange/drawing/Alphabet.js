@@ -19,91 +19,103 @@
 }(this, function ($, Path, PathGroup) {
 	"use strict";
 
-	var settings;
 
-	var letters = {};
+	var specialChars = {
+		'_x2D_' : '-',
+		'_x2E_' : '.'
+	};
 
-	var parseSVG = function(data){
+	var Alphabet = function(){
+		var settings;
+		var symbols = {};
 
-		//console.log(data);
-		var doc = $(data);
-		var layers = doc.find('g');
-		layers.each(function(i, el){
-			var layer = $(el);
-			var id = layer.attr('id');
 
-			if(id == '_x2D_') {
-				id = '-';
-			}
-			
-			if(id.length > 1) return;
+		var parseSVG = function(data){
 
-			var letter = letters[id] = new PathGroup(id);
+			//console.log(data);
+			var doc = $(data);
+			var layers = doc.find('g');
+			layers.each(function(i, el){
+				var layer = $(el);
+				var id = layer.attr('id');
+				id = specialChars[id] || id;
+				//console.log(id);
+				//if(id.length > 1) return;
+				var paths = layer.find('path');
+				if(paths.length===0) return;
 
-			var paths = layer.find('path');
-			//if(paths.length==0) console.log(layer);
-			//console.log(id);
-			paths.each(function(i, el){
-				var pathEl = $(el);
-				var p = Path.factory( pathEl.attr('d'), pathEl.attr('id'), null, settings.easepoints[id] && settings.easepoints[id][i]).scale(settings.scale || 1);				
-				letter.addPath( p );
+				var symbol = symbols[id] = new PathGroup(id);
+
+				paths.each(function(i, el){
+					var pathEl = $(el);
+					var p = Path.factory( pathEl.attr('d'), pathEl.attr('id'), null, settings.easepoints[id] && settings.easepoints[id][i]).scale(settings.scale || 1);				
+					symbol.addPath( p );
+				});
+
 			});
 
-		});
+			//trouve le top absolu (top de la lettre la plus haute)
+			var top = Object.keys(symbols).reduce(function(min, symbolName){
+				var t = symbols[symbolName].getTop();
+				if(min === undefined || min > t) {
+					min = t;
+				}
+				return min;
+			}, undefined);
+			//console.log(symbols);
 
-		//console.log(boundings);
-		//trouve le top absolu (top de la lettre la plus haute)
-		var top = Object.keys(letters).reduce(function(min, letterName){
-			var t = letters[letterName].getTop();
-			if(min === undefined || min > t) {
-				min = t;
-			}
-			return min;
-		}, undefined);
-		//console.log(top);
-		//console.log(letters);
-
-		//ajuste le baseline de chaque lettre
-		Object.keys(letters).forEach(function(key) {
-			letters[key].setOffset(-1 * letters[key].getLeft(), -1 * top);
-		});
+			//ajuste le baseline de chaque lettre
+			Object.keys(symbols).forEach(function(key) {
+				symbols[key].setOffset(-1 * symbols[key].getLeft(), -1 * top);
+			});
 
 
-	};
+		};
 
-	var doLoad = function(){
-		var loading = $.ajax({
-			url : settings.svgFile,
-			dataType : 'text'
-		});
+		var doLoad = function(){
+			var loading = $.ajax({
+				url : settings.svgFile,
+				dataType : 'text'
+			});
 
-		loading.then(parseSVG, function(a, b, c){
-			console.log('error load');
-			console.log(b);
-			//console.log(c);
-			//console.log(a.responseText);
-		});
+			loading.then(parseSVG, function(a, b, c){
+				console.log('error load');
+				console.log(b);
+				//console.log(c);
+				//console.log(a.responseText);
+			});
 
-		return loading.promise();
+			return loading.promise();
 
-	};
+		};
 
-	
+		
+		this.init = function(s) {
+			settings = s;
+			return this;
+		};
 
-	var Alphabet = {
-		init : function(fontSettings) {
-			settings = fontSettings;
+		this.load = function() {
 			return doLoad();
-		},
-		getLetter : function(l){
-			return letters[l];
-		},
-		getNSpace : function(){
-			return letters['n'].getWidth();
-		},
-		getAll : function(){
-			return letters;
-		}
+		};
+		
+		this.getSymbol = function(l){
+			return symbols[l];
+		};
+		
+		this.getNSpace = function(){
+			return symbols['n'].getWidth();
+		};
+
+		this.getAll = function(){
+			return symbols;
+		};
+
+		return this;
+	};
+
+	Alphabet.factory = function(inst){
+		return Alphabet.apply(inst || {});
 	};
 
 	return Alphabet;

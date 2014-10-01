@@ -41,6 +41,7 @@
 			var settings = _.extend({}, defaults, params);
 			var pathStr = path.getSVGString();
 			var length = path.getLength();
+
 			var pxPerSecond = settings.pxPerSecond;
 			var time = length / pxPerSecond;
 
@@ -57,7 +58,7 @@
 			})();
 
 			var easePoints = path.getEasepoints();
-			/*console.log(easePoints);
+			/*console.log(easePoints.length);
 			easePoints.forEach(function(pos){
 				var p = Raphael.getPointAtLength(pathStr, pos);
 				showPoint(p, stage, '#ff0000', 2);
@@ -75,10 +76,10 @@
 			
 		},
 
-		group : function(paths, stage, settings, onComplete) {
+		group : function(paths, stage, settings, tl) {
 			return paths.reduce(function(tl, path){
 				return tl.append(DrawPath.single(path, stage, settings));
-			}, new gsap.TimelineMax({ onComplete: (onComplete || function(){}) }));
+			}, tl || new gsap.TimelineMax({paused:true}));
 		}
 	}
 

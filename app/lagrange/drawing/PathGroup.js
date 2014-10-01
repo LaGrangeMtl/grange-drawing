@@ -108,6 +108,10 @@
 		return scaled;
 	};
 
+	PathGroup.prototype.getPaths = function(){
+		return this.paths;
+	};
+
 	return PathGroup;
 
 }));

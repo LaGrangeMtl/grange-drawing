@@ -13,36 +13,36 @@
 	}, root);
 	if (typeof exports === 'object') {
 	    // CommonJS
-	    module.exports = factory(require('./Alphabet'));
+	    module.exports = factory(require('./PathGroup'));
   	} else {
-		ns[name] = factory(lagrange.drawing.Alphabet);
+		ns[name] = factory(lagrange.drawing.PathGroup);
 	}
-}(this, function (Alphabet) {
+}(this, function (PathGroup) {
 	"use strict";
 
 	
 	var VectorWord = {
-		getPaths : function(name, right, top, scale) {
-			right = right || 0;
-			top = top || 0;
 
+		getPaths : function(alphabet, text) {
+			var right = 0;
+			var lines = new PathGroup(text);
 			var continuous = false;
-			var lines = [];
 
 			//loop for every character in name (string)
-			for(var i=0; i<name.length; i++) {
-				var letter = name[i];
+			for(var i=0; i<text.length; i++) {
+				var letter = text[i];
 				if(letter === ' ') {
-					right += Alphabet.getNSpace() * scale;
+					right += alphabet.getNSpace();
 					continuous = false;
 					continue;
 				}
-				var letterDef = Alphabet.getLetter(letter).scale(scale);
-				//console.log(letterDef);
+				var letterDef = alphabet.getSymbol(letter) || alphabet.getSymbol('-');
+				//console.log(letter, letterDef);
+
 				
 				var letterJoinedEnd = false;
 				letterDef.paths.forEach(function(path) {
-					var def = path.translate(right, top);
+					var def = path.translate(right, 0);
 					var joinedStart = def.name && def.name.indexOf('joina') > -1;
 					var joinedEnd = /join(a?)b/.test(def.name);
 					//console.log(letter, joinedStart, joinedEnd);
@@ -58,12 +58,12 @@
 						});
 
 					} else if(joinedEnd && !continuous) {
-						//start un nouveau line
-						continuous = def;
+						//start un nouveau line (clone en scalant de 1)
+						continuous = def.clone();
 						continuous.name = letter;
-						lines.push(continuous);
+						lines.addPath(continuous);
 					} else {
-						lines.push(def);
+						lines.addPath(def);
 					}
 
 					if(!letterJoinedEnd) {
@@ -75,7 +75,6 @@
 				right += letterDef.getWidth();
 				//console.table([{letter:name[i], letterWidth: letter.getWidth(), total:right}]);	
 			}
-
 			return lines;
 
 		}
