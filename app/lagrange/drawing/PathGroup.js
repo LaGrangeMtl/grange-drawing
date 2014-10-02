@@ -81,6 +81,9 @@
 	PathGroup.prototype.getRight = function(){
 		return this.bounding.x2;
 	};
+	PathGroup.prototype.getBounding = function(){
+		return this.bounding;
+	};
 
 	PathGroup.prototype.setOffset = function(x, y){
 		this.paths = this.paths.map(function(path) {
@@ -110,6 +113,10 @@
 
 	PathGroup.prototype.getPaths = function(){
 		return this.paths;
+	};
+
+	PathGroup.factory = function(){
+		return new PathGroup();
 	};
 
 	return PathGroup;

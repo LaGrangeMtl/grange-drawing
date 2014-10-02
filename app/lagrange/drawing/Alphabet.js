@@ -104,7 +104,15 @@
 		};
 		
 		this.getNSpace = function(){
-			return symbols['n'].getWidth();
+			return symbols['n'] && symbols['n'].getWidth();
+		};
+
+		this.getLowerLineHeight = function(){
+			return symbols['n'] && symbols['n'].getHeight();
+		};
+
+		this.getUpperLineHeight = function(){
+			return symbols['N'] && symbols['N'].getHeight();
 		};
 
 		this.getAll = function(){
@@ -114,8 +122,11 @@
 		return this;
 	};
 
-	Alphabet.factory = function(inst){
-		return Alphabet.apply(inst || {});
+	var instances = {};
+	Alphabet.factory = function(settings){
+		var svg = settings.svgFile;
+		instances[svg] = instances[svg] || (new Alphabet()).init(settings);
+		return instances[svg];
 	};
 
 	return Alphabet;

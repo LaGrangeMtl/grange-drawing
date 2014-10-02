@@ -36,8 +36,8 @@
 
 	var DrawPath = {
 
-		single : function(path, stage, params){
-
+		single : function(path, stage, elSet, params){
+			
 			var settings = _.extend({}, defaults, params);
 			var pathStr = path.getSVGString();
 			var length = path.getLength();
@@ -53,6 +53,9 @@
 					var pathPart = Raphael.getSubpath(pathStr, 0, anim.to);
 					if(el) el.remove();
 					el = stage.path(pathPart);
+					if(elSet) {
+						elSet.push(el);
+					}
 					el.attr({"stroke-width": settings.strokeWidth, stroke: settings.color});
 				};
 			})();
@@ -76,9 +79,9 @@
 			
 		},
 
-		group : function(paths, stage, settings, tl) {
+		group : function(paths, stage, elSet, settings, tl) {
 			return paths.reduce(function(tl, path){
-				return tl.append(DrawPath.single(path, stage, settings));
+				return tl.append(DrawPath.single(path, stage, elSet, settings));
 			}, tl || new gsap.TimelineMax({paused:true}));
 		}
 	}

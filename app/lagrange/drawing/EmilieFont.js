@@ -6,11 +6,11 @@
 	}, root);
 	if (typeof exports === 'object') {
 	    // CommonJS
-	    module.exports = factory();
+	    module.exports = factory(require('./Alphabet'));
   	} else {
-		ns[name] = factory();
+		ns[name] = factory(lagrange.drawing.Alphabet);
 	}
-}(this, function () {
+}(this, function (Alphabet) {
 	"use strict";
 
 	//original scale factor
@@ -22,6 +22,6 @@
 	};
 
 
-	return EmilieFont;
+	return  Alphabet.factory(EmilieFont);;
 	
 }));
