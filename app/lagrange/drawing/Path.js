@@ -64,10 +64,13 @@
 	};
 
 	/**
-	Gets the positions at which we have ease points (which are preparsed and considered part of the path's definitions)
+	Gets the absolute positions at which we have ease points (which are preparsed and considered part of the path's definitions)
 	*/
 	Path.prototype.getEasepoints = function() {
-		return this.easePoints;
+		var l = this.getLength();
+		return this.easePoints.map(function(e){
+			return e * l;
+		});
 	};
 
 	Path.prototype.getPoint = function(idx) {
@@ -131,7 +134,7 @@
 		var m = Raphael.matrix();
 		m.translate(x, y);
 		var svg = Raphael.mapPath(this.getSVGString(), m);
-		return Path.factory(svg, this.name, null, this.easePoints);
+		return Path.factory(svg, this.name, null, this.easePoints.slice(0));
 	};
 
 	//returns a new path, scaled
@@ -140,24 +143,25 @@
 		var m = Raphael.matrix();
 		m.scale(ratio);
 		var svg = Raphael.mapPath(this.getSVGString(), m);
-		var easePoints = this.easePoints.map(function(ep){
-			return ep * ratio;
-		});
-		return Path.factory(svg, this.name, null, easePoints);
+		return Path.factory(svg, this.name, null, this.easePoints.slice(0));
 	};
 
 	Path.prototype.applyMatrix = function(m){
 		var svg = Raphael.mapPath(this.getSVGString(), m);
-		var easePoints = this.easePoints.map(function(ep){
-			return ep ;//;
-		});
-		return Path.factory(svg, this.name, null, easePoints);
+		return Path.factory(svg, this.name, null, this.easePoints.slice(0));
 	}; 
 
 	Path.prototype.append = function(part, name) {
 		//console.log(part);
 		if(name) this.name += name;
+		var origLength = this.getLength();
 		this._setParsed(this.parsed.concat(part.parsed.slice(1)));
+		var finalLength = this.getLength();
+		//remap easepoints, as length of path has changed
+		var lengthRatio = finalLength / origLength;
+		this.easePoints = this.easePoints.map(function(e){
+			return e / lengthRatio;
+		});
 	};
 
 	Path.prototype.addEasepoint = function(pos){

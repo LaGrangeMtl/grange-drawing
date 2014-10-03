@@ -140,12 +140,13 @@
 		var path = show(pathDef);
 
 		//are ease points already set for this path?
-		var pathEasePoints = pathDef.getEasepoints(); 
+		var pathEasePoints = pathDef.getEasepoints(true); 
 		if(pathEasePoints.length === 0 && GET_DEFAULTS) {
 			pathEasePoints = findDefaults(pathDef);
 		}
 
 		//console.log(easePoints);
+		var length = pathDef.getLength();
 		var pathStr = pathDef.getSVGString();
 		
 
@@ -153,12 +154,14 @@
 		var activeColor = '#ff2200';
 
 		var addPoint = function(pos){
+			if(pos < 1) pos = pos * length;//si en prc
 			var pObj = Raphael.getPointAtLength(pathStr, pos);
 			var point = showPoint(pObj, inactiveColor, 3);
 			//console.log(pathIdx);
 			point.data('pos', pos);
 			point.data('letter', letter);
 			point.data('pathIdx', pathIdx);
+			point.data('pathLength', length);
 			point.data('x', pObj.x);
 			point.data('y', pObj.y);
 
@@ -270,10 +273,11 @@
 
 			var letter = point.data('letter');
 			var pathIdx = point.data('pathIdx');
+			var l = point.data('pathLength');
 
 			var paths = json[letter] = json[letter] || [];
 			var easepoints = paths[pathIdx] = paths[pathIdx] || [];
-			easepoints.push(point.data('pos'));
+			easepoints.push(point.data('pos') / l);
 			easepoints.sort(function(a, b){
 				return a - b;
 			});

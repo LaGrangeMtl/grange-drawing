@@ -52,9 +52,10 @@
 						continuous.append(def, letter);
 
 						//ajoute les easepoints de ce path
-						var pathStartPos = continuous.getLength() - def.getLength();
+						var totalLength = continuous.getLength();
+						var pathStartPos = totalLength - def.getLength();
 						def.getEasepoints().forEach(function(pos){
-							continuous.addEasepoint(pathStartPos + pos);
+							continuous.addEasepoint((pathStartPos + pos) / totalLength);
 						});
 
 					} else if(joinedEnd && !continuous) {

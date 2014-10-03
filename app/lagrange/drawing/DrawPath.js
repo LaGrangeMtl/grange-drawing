@@ -30,8 +30,11 @@
 	};
 
 	//helper
-	var showPoint = function(point, stage, color, size){
-		stage.circle(point.x, point.y, size || 2).attr({fill: color || '#ff0000', "stroke-width":0});
+	var showPoint = function(point, stage, elSet, color, size){
+		var el = stage.circle(point.x, point.y, size || 2).attr({fill: color || '#ff0000', "stroke-width":0});
+		if(elSet) {
+			elSet.push(el);
+		}
 	};
 
 	var DrawPath = {
@@ -64,7 +67,7 @@
 			/*console.log(easePoints.length);
 			easePoints.forEach(function(pos){
 				var p = Raphael.getPointAtLength(pathStr, pos);
-				showPoint(p, stage, '#ff0000', 2);
+				showPoint(p, stage, elSet, '#ff0000', 2);
 			});/**/
 			
 

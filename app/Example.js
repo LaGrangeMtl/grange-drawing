@@ -197,6 +197,8 @@
 
 	//parse les easepoints de chaque lettre, output en JSON (à saver)
 	var printEasepoints = function(){
+		//EmilieFont
+		//DecorativeLines
 		PathEasepoints(getStage(), EmilieFont.getAll(), $('#brp'), [W, H]);
 	};
 
