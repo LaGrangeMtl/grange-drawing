@@ -30,16 +30,10 @@
 	};
 
 	//helper
-	var showPoint = function(point, stage, elSet, color, size){
-		var el = stage.circle(point.x, point.y, size || 2).attr({fill: color || '#ff0000', "stroke-width":0});
-		if(elSet) {
-			elSet.push(el);
-		}
-	};
 
 	var DrawPath = {
 
-		single : function(path, stage, elSet, params){
+		single : function(path, layer, params){
 			
 			var settings = _.extend({}, defaults, params);
 			var pathStr = path.getSVGString();
@@ -48,17 +42,15 @@
 			var pxPerSecond = settings.pxPerSecond;
 			var time = length / pxPerSecond;
 
-			var anim = {to: 0};
+			var anim = {distance: 0};
 			
 			var update = (function(){
+				//console.log('update');
 				var el;
 				return function(){
-					var pathPart = Raphael.getSubpath(pathStr, 0, anim.to);
-					if(el) el.remove();
-					el = stage.path(pathPart);
-					if(elSet) {
-						elSet.push(el);
-					}
+					var pathPart = Raphael.getSubpath(pathStr, 0, anim.distance);
+					layer.remove(el);
+					el = layer.add('path', pathPart);
 					el.attr({"stroke-width": settings.strokeWidth, stroke: settings.color});
 				};
 			})();
@@ -67,24 +59,23 @@
 			/*console.log(easePoints.length);
 			easePoints.forEach(function(pos){
 				var p = Raphael.getPointAtLength(pathStr, pos);
-				showPoint(p, stage, elSet, '#ff0000', 2);
+				layer.showPoint(p, '#ff0000', 2);
 			});/**/
-			
 
 			var last = 0;
 			return easePoints.reduce(function(tl, dist) {
 				var time = (dist-last) / pxPerSecond;
 				last = dist;
-				return tl.to(anim, time, {to: dist, ease : settings.easing});
+				return tl.to(anim, time, {distance: dist, ease : settings.easing});
 			}, new gsap.TimelineMax({
 				onUpdate : update
-			})).to(anim, ((length - (easePoints.length && easePoints[easePoints.length-1])) / pxPerSecond), {to: length, ease : settings.easing});
+			})).to(anim, ((length - (easePoints.length && easePoints[easePoints.length-1])) / pxPerSecond), {distance: length, ease : settings.easing});
 			
 		},
 
-		group : function(paths, stage, elSet, settings, tl) {
+		group : function(paths, layer, settings, tl) {
 			return paths.reduce(function(tl, path){
-				return tl.append(DrawPath.single(path, stage, elSet, settings));
+				return tl.append(DrawPath.single(path, layer, settings));
 			}, tl || new gsap.TimelineMax({paused:true}));
 		}
 	}

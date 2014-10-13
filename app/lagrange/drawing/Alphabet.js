@@ -72,9 +72,9 @@
 
 		};
 
-		var doLoad = function(){
+		var doLoad = function(basePath){
 			var loading = $.ajax({
-				url : settings.svgFile,
+				url : ((basePath && basePath+'/') || '') + settings.svgFile,
 				dataType : 'text'
 			});
 
@@ -95,8 +95,8 @@
 			return this;
 		};
 
-		this.load = function() {
-			return doLoad();
+		this.load = function(basePath) {
+			return doLoad(basePath);
 		};
 		
 		this.getSymbol = function(l){

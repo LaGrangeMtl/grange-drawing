@@ -31,6 +31,7 @@
 			//loop for every character in name (string)
 			for(var i=0; i<text.length; i++) {
 				var letter = text[i];
+
 				if(letter === ' ') {
 					right += alphabet.getNSpace();
 					continuous = false;
@@ -38,6 +39,7 @@
 				}
 				var letterDef = alphabet.getSymbol(letter) || alphabet.getSymbol('-');
 				//console.log(letter, letterDef);
+
 
 				
 				var letterJoinedEnd = false;
@@ -76,6 +78,11 @@
 				right += letterDef.getWidth();
 				//console.table([{letter:name[i], letterWidth: letter.getWidth(), total:right}]);	
 			}
+			//console.log(lines.getBounding());
+
+			var b = lines.getBounding();
+			lines.setOffset(-b.x, -b.y);
+			
 			return lines;
 
 		}

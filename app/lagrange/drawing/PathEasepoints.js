@@ -35,18 +35,18 @@
 	var distanceTreshold = 40;
 	var angleTreshold = toRadians(12);
 
-	var stage;
+	var layer;
 
 	//helper
 	var showPoint = function(point, color, size){
-		var el = stage.circle(point.x, point.y, size || 2);
+		var el = layer.add('circle', point.x, point.y, size || 2);
 		el.attr({fill: color || '#ff0000', "stroke-width":0});
 		return el;
 	};
 
 	var show = function(pathDef) {
 		var path = pathDef.getSVGString();			
-		var el = stage.path(path);
+		var el = layer.add('path', path);
 		el.attr({"stroke-width": 3, stroke: '#000000'});/**/
 		return el;
 	};
@@ -140,7 +140,7 @@
 		var path = show(pathDef);
 
 		//are ease points already set for this path?
-		var pathEasePoints = pathDef.getEasepoints(true); 
+		var pathEasePoints = pathDef.getEasepoints(); 
 		if(pathEasePoints.length === 0 && GET_DEFAULTS) {
 			pathEasePoints = findDefaults(pathDef);
 		}
@@ -286,10 +286,10 @@
 		printNode.text(JSON.stringify(json));
 	};
 
-	return function(s, groups, node, dim){
-		stage = s;
+	return function(stage, groups, node){
+		layer = stage.getNewLayer();
 		var pad = 20;
-		var availW = dim[0] - pad;
+		var availW = stage.width() - pad;
 
 		var groupMaxHeight = Object.keys(groups).reduce(function(min, groupName){
 			var t = groups[groupName].getHeight();
