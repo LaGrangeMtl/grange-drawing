@@ -56,12 +56,6 @@
 			})();
 
 			var easePoints = path.getEasepoints();
-			/*console.log(easePoints.length);
-			easePoints.forEach(function(pos){
-				var p = Raphael.getPointAtLength(pathStr, pos);
-				layer.showPoint(p, '#ff0000', 2);
-			});/**/
-
 			var last = 0;
 			return easePoints.reduce(function(tl, dist) {
 				var time = (dist-last) / pxPerSecond;

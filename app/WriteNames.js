@@ -158,7 +158,7 @@
 					}
 					
 					var targetLeft = (stage.width() * padding * 0.5) + ((W - bounding.width) / 2) - bounding.x;
-					var targetTop = -(stage.height() * padding * 0.5) + (stage.height() - ( bounding.y + (bounding.height*scale/**/)));
+					var targetTop = -(stage.height() * padding * 0.5) + (stage.height() - ( bounding.y + (bounding.height*scale)));
 					layer.transform('t'+targetLeft+','+targetTop+'s'+scale+','+scale+',0,0');
 				}
 			})();
@@ -173,7 +173,7 @@
 					easing : gsap.Sine.easeInOut
 				}, tl);
 			}, new gsap.TimelineMax({paused:true, onUpdate: resizeSet}));
-			
+			//tl.timeScale(0.2);
 			return tl;
 
 		},
