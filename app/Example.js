@@ -62,7 +62,7 @@
 
 		var EmilieFont = require('./lagrange/drawing/EmilieFont.js');
 		var DecorativeLines = require('./DecorativeLines');
-		PathEasepoints(Stage.getStage('svg'), EmilieFont.getAll(), $('#brp'));
+		PathEasepoints(Stage.getStage('svg'), DecorativeLines.getAll(), $('#brp'));
 	};
 
 	var getBpr = $('#getbrp');

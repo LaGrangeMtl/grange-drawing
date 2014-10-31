@@ -73,7 +73,7 @@
 			resizeNotifier.notify({w:width, h:height});
 		};
 
-		$(window).on('resize.stage', onResize);
+		$(window).on('resize.stage'+name, onResize);
 
 
 		this.width = function(){
@@ -81,6 +81,9 @@
 		};
 		this.height = function(){
 			return height;
+		};
+		this.clear = function(){
+			return paper.clear();
 		};
 
 		this.showPoint = function(point, color, size){

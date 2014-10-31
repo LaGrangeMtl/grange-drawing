@@ -48,7 +48,7 @@
 				//console.log('update');
 				var el;
 				return function(){
-					var pathPart = Raphael.getSubpath(pathStr, 0, anim.distance);
+					var pathPart = path.getSvgSub(0, anim.distance, true);
 					layer.remove(el);
 					el = layer.add('path', pathPart);
 					el.attr({"stroke-width": settings.strokeWidth, stroke: settings.color});
@@ -56,6 +56,12 @@
 			})();
 
 			var easePoints = path.getEasepoints();
+			/*console.log(easePoints.length);
+			easePoints.forEach(function(pos){
+				var p = Raphael.getPointAtLength(pathStr, pos);
+				layer.showPoint(p, '#ff0000', 2);
+			});/**/
+
 			var last = 0;
 			return easePoints.reduce(function(tl, dist) {
 				var time = (dist-last) / pxPerSecond;

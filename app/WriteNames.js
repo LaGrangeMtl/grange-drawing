@@ -179,8 +179,6 @@
 		},
 
 		load : function(){
-			console.log(DecorativeLines);
-			console.log(EmilieFont);
 			return $.when(EmilieFont.load(), DecorativeLines.load());
 		}
 	};

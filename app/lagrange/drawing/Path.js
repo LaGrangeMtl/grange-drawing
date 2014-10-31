@@ -42,6 +42,7 @@
 
 	Path.prototype._setParsed = function(parsed) {
 		//console.log(parsed);
+		this.svg = null;
 		this.parsed = parsed;
 	};
 
@@ -58,7 +59,7 @@
 	Gets an SVG string of the path segemnts. It is not the svg property of the path, as it is potentially transformed
 	*/
 	Path.prototype.getSVGString = function() {
-		return this.parsed.reduce(function(svg, segment){
+		return this.svg = this.svg || this.parsed.reduce(function(svg, segment){
 			return svg + segment.type + segment.anchors.join(','); 
 		}, '');
 	};
@@ -76,6 +77,28 @@
 	Path.prototype.getPoint = function(idx) {
 		//console.log(this.parsed);
 		return this.parsed[idx] && this.parsed[idx].anchors;
+	};
+
+	Path.prototype.getSvgSub = function(start, end, absolute) {
+		start = start || 0;
+		end = end || 1;
+		var subL = end - start;
+		var l = this.getLength();
+		if(!absolute) {
+			start *=l;
+			end *= l;
+		}
+		return Raphael.getSubpath(this.getSVGString(), start, end);
+	};
+
+	Path.prototype.getSub = function(start, end, absolute) {
+		var prcStart = absolute ? start / this.getLength() : start;
+		var ease = this.easePoints.map(function(e){
+			return (e - prcStart) / subL;
+		}).filter(function(e){
+			return e > 0 && e < 1;
+		});
+		return Path.factory(this.getSvgSub(start, end, absolute), this.name, null, ease);
 	};
 
 	/**
@@ -133,17 +156,21 @@
 	Path.prototype.translate = function(x, y) {
 		var m = Raphael.matrix();
 		m.translate(x, y);
-		var svg = Raphael.mapPath(this.getSVGString(), m);
-		return Path.factory(svg, this.name, null, this.easePoints.slice(0));
+		return this.applyMatrix(m);
+	};
+
+	Path.prototype.rotate = function(deg) {
+		var m = Raphael.matrix();
+		m.rotate(deg);
+		return this.applyMatrix(m);
 	};
 
 	//returns a new path, scaled
-	Path.prototype.scale = Path.prototype.clone = function(ratio) {
-		ratio = ratio || 1;
+	Path.prototype.scale = Path.prototype.clone = function(ratiox, ratioy) {
+		ratiox = ratiox || 1;
 		var m = Raphael.matrix();
-		m.scale(ratio);
-		var svg = Raphael.mapPath(this.getSVGString(), m);
-		return Path.factory(svg, this.name, null, this.easePoints.slice(0));
+		m.scale(ratiox, ratioy || ratiox);
+		return this.applyMatrix(m);
 	};
 
 	Path.prototype.applyMatrix = function(m){
@@ -167,6 +194,40 @@
 	Path.prototype.addEasepoint = function(pos){
 		//console.log(this.easePoints, pos);
 		this.easePoints.push(pos);
+	};
+
+
+	Path.prototype.reverse = function(){
+		var svg = this.getSVGString();
+		var pathPieces = svg.match(/[MLHVCSQTA][-0-9.,]*/gi);
+	    var reversed = '';
+	    var skip = true;
+	    var previousPathType;
+	    for (var i = pathPieces.length - 1; i >= 0; i--) {
+	        var pathType = pathPieces[i].substr(0, 1);
+	        var pathValues = pathPieces[i].substr(1);
+	        switch (pathType) {
+	            case 'M':
+	            case 'L':
+	                reversed += (skip ? '' : pathType) + pathValues;
+	                skip = false;
+	                break;
+	            case 'C':
+	                var curvePieces = pathValues.match(/^([-0-9.]*,[-0-9.]*),([-0-9.]*,[-0-9.]*),([-0-9.]*,[-0-9.]*)$/);
+	                reversed += curvePieces[3] + pathType + curvePieces[2] + ',' + curvePieces[1] + ',';
+	                skip = true;
+	                break;
+	            default:
+	                alert('Not implemented: ' + pathType);
+	                break;
+	        }
+	    }
+	    var ease = this.easePoints.map(function(e){
+			return 1 - e;
+		});
+		//console.log(reversed);
+	    return Path.factory('M'+reversed, this.name, null, ease);
+	
 	};
 
 	Path.factory = function(svg, name, parsed, easePoints) {
