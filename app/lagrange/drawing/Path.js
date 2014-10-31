@@ -93,11 +93,12 @@
 
 	Path.prototype.getSub = function(start, end, absolute) {
 		var prcStart = absolute ? start / this.getLength() : start;
+		var subL = end - start;
 		var ease = this.easePoints.map(function(e){
 			return (e - prcStart) / subL;
 		}).filter(function(e){
 			return e > 0 && e < 1;
-		});
+		});/**/
 		return Path.factory(this.getSvgSub(start, end, absolute), this.name, null, ease);
 	};
 

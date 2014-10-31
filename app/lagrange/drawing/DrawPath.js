@@ -39,17 +39,27 @@
 			var pathStr = path.getSVGString();
 			var length = path.getLength();
 
-			var pxPerSecond = settings.pxPerSecond;
-			var time = length / pxPerSecond;
+			var pxPerSecond;
+			var time;
+			//we can have either a time for the animation, or a number of pixels per second
+			if(settings.time){
+				time = settings.time;
+				pxPerSecond = length / time;
+			} else {
+				pxPerSecond = settings.pxPerSecond;
+				time = length / pxPerSecond;
+			}
+			//console.log(length, pxPerSecond, time);
 
-			var anim = {distance: 0};
+			var anim = {start: 0, end: 0};
 			
 			var update = (function(){
 				//console.log('update');
 				var el;
 				return function(){
-					var pathPart = path.getSvgSub(0, anim.distance, true);
 					layer.remove(el);
+					if(anim.start === anim.end) return;
+					var pathPart = path.getSvgSub(anim.start, anim.end, true);
 					el = layer.add('path', pathPart);
 					el.attr({"stroke-width": settings.strokeWidth, stroke: settings.color});
 				};
@@ -61,15 +71,44 @@
 				var p = Raphael.getPointAtLength(pathStr, pos);
 				layer.showPoint(p, '#ff0000', 2);
 			});/**/
+			
+
+			var animate = ['end'];
+			//do we need to "undraw" the path after it is drawn?
+			if(params.undraw) {
+				animate.push('start');
+			}
+
+			var getAnimate = function(prop, val){
+				var props = {ease : settings.easing};
+				props[prop] = val;
+				return props;
+			};
+
+			return animate.reduce(
+				function(tl, prop){
+					var last = 0;
+					return easePoints.reduce(function(tl, dist) {
+						var time = (dist-last) / pxPerSecond;
+						last = dist;
+						return tl.to(anim, time, getAnimate(prop, dist));
+					}, tl).to(anim, ((length - (easePoints.length && easePoints[easePoints.length-1])) / pxPerSecond), getAnimate(prop, length));
+				},	
+				new gsap.TimelineMax({
+					onUpdate : update
+				})
+			);
 
 			var last = 0;
-			return easePoints.reduce(function(tl, dist) {
+			var tl = easePoints.reduce(function(tl, dist) {
 				var time = (dist-last) / pxPerSecond;
 				last = dist;
-				return tl.to(anim, time, {distance: dist, ease : settings.easing});
+				return tl.to(anim, time, {end: dist, ease : settings.easing});
 			}, new gsap.TimelineMax({
 				onUpdate : update
-			})).to(anim, ((length - (easePoints.length && easePoints[easePoints.length-1])) / pxPerSecond), {distance: length, ease : settings.easing});
+			})).to(anim, ((length - (easePoints.length && easePoints[easePoints.length-1])) / pxPerSecond), {end: length, ease : settings.easing});
+
+			return tl;
 			
 		},
 

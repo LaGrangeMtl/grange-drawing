@@ -35,18 +35,18 @@
 	var distanceTreshold = 40;
 	var angleTreshold = toRadians(12);
 
-	var layer;
+	var stage;
 
 	//helper
 	var showPoint = function(point, color, size){
-		var el = layer.add('circle', point.x, point.y, size || 2);
+		var el = stage.circle(point.x, point.y, size || 2);
 		el.attr({fill: color || '#ff0000', "stroke-width":0});
 		return el;
 	};
 
 	var show = function(pathDef) {
 		var path = pathDef.getSVGString();			
-		var el = layer.add('path', path);
+		var el = stage.path(path);
 		el.attr({"stroke-width": 3, stroke: '#000000'});/**/
 		return el;
 	};
@@ -286,10 +286,10 @@
 		printNode.text(JSON.stringify(json));
 	};
 
-	return function(stage, groups, node){
-		layer = stage.getNewLayer();
+	return function(s, groups, node, dim){
+		stage = s;
 		var pad = 20;
-		var availW = stage.width() - pad;
+		var availW = dim[0] - pad;
 
 		var groupMaxHeight = Object.keys(groups).reduce(function(min, groupName){
 			var t = groups[groupName].getHeight();
